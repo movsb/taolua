@@ -19,12 +19,12 @@
     <Filter Include="Source Files\3rd\lua">
       <UniqueIdentifier>{e57747a6-0e47-4e4c-83d4-6fa1ec41f896}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\lib">
+      <UniqueIdentifier>{848a6600-d766-4176-8d11-373cea9fc2e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\libs.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="3rd\lua\lapi.h">
@@ -110,6 +110,9 @@
     </ClInclude>
     <ClInclude Include="src\lua.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lib\file_system.h">
+      <Filter>Source Files\lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -223,6 +226,9 @@
     </ClCompile>
     <ClCompile Include="src\lua.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lib\file_system.cpp">
+      <Filter>Source Files\lib</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

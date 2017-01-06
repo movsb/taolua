@@ -24,4 +24,5 @@ extern "C" {
 #include <lua/lualib.h>
 }
 
+#include "lua.h"
 #include "charset.h"

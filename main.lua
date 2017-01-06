@@ -1,2 +1,5 @@
-print('33')
+local fs = taolua.file_system
+
+fs.touch()
+
 

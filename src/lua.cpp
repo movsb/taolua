@@ -10,12 +10,28 @@ void TaoLua::open()
     _L = luaL_newstate();
     assert(_L);
     luaL_openlibs(_L);
+
+    _init_global();
 }
 
 void TaoLua::close()
 {
     lua_close(_L);
     _L = nullptr;
+}
+
+void TaoLua::main()
+{
+    getglobal("taolua");
+}
+
+void TaoLua::newlib(const char* name, const luaL_Reg fns[])
+{
+    main();
+    newtable();
+    setfuncs(fns);
+    setfield(-2, name);
+    pop();
 }
 
 int TaoLua::exec(const std::wstring& file)
@@ -30,7 +46,19 @@ int TaoLua::exec(const std::wstring& file)
     f.read(buf.get(), size);
     buf.get()[size] = '\0';
 
-    return luaL_dostring(_L, buf.get());
+    int r = luaL_dostring(_L, buf.get());
+    if(r != LUA_OK) {
+        std::cout << lua_tostring(_L, -1);
+        pop();
+    }
+
+    return r;
+}
+
+void TaoLua::_init_global()
+{
+    newtable();
+    setglobal("taolua");
 }
 
 }
