@@ -13,6 +13,7 @@ public:
 
     BEG_OBJ_API(WindowObject, "window_manage::WindowObject")
         OBJAPI(__tostring)
+        OBJAPI(hwnd)
         OBJAPI(show)
         OBJAPI(hide)
         OBJAPI2("class", class_name)
@@ -22,7 +23,14 @@ public:
     LIBAPI(__tostring)
     {
         DECL_THIS;
-        G.push_fmt(L"%s { hWnd: 0x%08X }", _namew(), O._hwnd);
+        G.push_fmt(L"%s { hWnd: 0x%08X }", __namew__(), O._hwnd);
+        return 1;
+    }
+
+    LIBAPI(hwnd)
+    {
+        DECL_THIS;
+        G.push(O._hwnd);
         return 1;
     }
 

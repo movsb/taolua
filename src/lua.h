@@ -4,14 +4,14 @@
 
 namespace taolua {
 
-#define MODULE(name) lua.newlib(#name, taolua::name::methods)
+#define MODULE(name) lua.newlib(#name, taolua::name::__methods__)
 
-#define DECL_METHODS extern const luaL_Reg methods[]
+#define DECL_METHODS extern const luaL_Reg __methods__[]
 #define DECL_WRAP LuaWrapper G(L)
 #define LIBAPI(name) static int name(lua_State* L)
 
 #define BEG_LUA_API() \
-    const luaL_Reg methods[]\
+    const luaL_Reg __methods__[]\
     {
 #define LUAAPI(name) {#name, name},
 #define LUAAPI2(name1, name2) { name1, name2},
@@ -20,10 +20,10 @@ namespace taolua {
 
 #define DECL_OBJECT(T) class T
 #define BEG_OBJ_API(T, name_) \
-    static T* check_this(lua_State* L) {return reinterpret_cast<T*>(luaL_checkudata(L, 1, _name()));}\
-    static const char* const _name() { return "" ## name_; }\
-    static const wchar_t* const _namew() { return L"" ## name_; }\
-    static const luaL_Reg* const _apis()\
+    static T* check_this(lua_State* L) {return reinterpret_cast<T*>(luaL_checkudata(L, 1, __name__()));}\
+    static const char* const __name__() { return "" ## name_; }\
+    static const wchar_t* const __namew__() { return L"" ## name_; }\
+    static const luaL_Reg* const __apis__()\
     {\
         static luaL_Reg s_apis[] = {
 #define END_OBJ_API() \
@@ -114,7 +114,7 @@ public:
     template<typename T>
     T               check_udata(int i)                      { if(islightuserdata(i)) return (T)touserdata(i); argerr(i, (typeid(T).name() + std::string(" expected")).c_str()); return T(); }
     template<typename T>
-    T&              check_object(int i)                     { return *(T*)luaL_checkudata(_L, i, T::_name()); }
+    T&              check_object(int i)                     { return *(T*)luaL_checkudata(_L, i, T::__name__()); }
 
     // push functions (C -> stack)
     void push()                                             { return lua_pushnil(_L); }
@@ -148,10 +148,10 @@ public:
         {
             auto p = new (newud(sizeof(T))) T(std::forward<Args>(args)...);
 
-            if(getmetatable(T::_name()) == LUA_TNIL) {
+            if(getmetatable(T::__name__()) == LUA_TNIL) {
                 pop();
-                newmetatable(T::_name());
-                setfuncs(T::_apis(), 0);
+                newmetatable(T::__name__());
+                setfuncs(T::__apis__(), 0);
                 copy(-1);
                 setfield(-2, "__index");
             }
