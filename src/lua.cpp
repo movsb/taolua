@@ -61,4 +61,18 @@ void TaoLua::_init_global()
     setglobal("taolua");
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+void LuaWrapper::newtable(const std::vector<std::wstring>& arr)
+{
+    newtable(arr.size());
+
+    int i = 1;
+
+    for(const auto& a : arr) {
+        push(a);
+        rawseti(-2, i++);
+    }
+}
+
 }

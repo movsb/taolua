@@ -41,12 +41,23 @@ protected:
 
 public:
     void newtable(int na = 0, int nk = 0)                   { return lua_createtable(_L, na, nk); }
+    void newtable(const std::vector<std::wstring>& arr);
+    int  newmetatable(const char* name)                     { return luaL_newmetatable(_L, name); }
     void* newud(size_t size)                                { return lua_newuserdata(_L, size); }
+
     void setglobal(const char* name)                        { return lua_setglobal(_L, name); }
     int  getglobal(const char* name)                        { return lua_getglobal(_L, name); }
+
+    void setmetatable(int i)                                { return (void)lua_setmetatable(_L, i); }
+    int  getmetatable(const char* name)                     { return luaL_getmetatable(_L, name); }
+
     void setfuncs(const luaL_Reg fns[], int nup = 0)        { return luaL_setfuncs(_L, fns, nup); }
     void setfield(int index, const char* key)               { return lua_setfield(_L, index, key); }
 
+    void rawset(int i)                                      { return lua_rawset(_L, i); }
+    void rawseti(int t, int i)                              { return lua_rawseti(_L, t, i); }
+
+    void copy(int i)                                        { return lua_pushvalue(_L, i); }
     void push()                                             { return lua_pushnil(_L); }
     void push(int i)                                        { return push(lua_Integer(i)); }
     void push(lua_Integer i)                                { return lua_pushinteger(_L, i); }
@@ -61,15 +72,15 @@ public:
         {
             auto p = new (newud(sizeof(T))) T(std::forward<Args>(args)...);
 
-            if(luaL_getmetatable(_L, T::name()) == LUA_TNIL) {
+            if(getmetatable(T::name()) == LUA_TNIL) {
                 pop();
-                luaL_newmetatable(_L, T::name());
-                luaL_setfuncs(_L, T::apis(), 0);
-                lua_pushvalue(_L, -1);
-                lua_setfield(_L, -2, "__index");
+                newmetatable(T::name());
+                setfuncs(T::apis(), 0);
+                copy(-1);
+                setfield(-2, "__index");
             }
 
-            lua_setmetatable(_L, -2);
+            setmetatable(-2);
 
             return p;
         }
@@ -78,6 +89,12 @@ public:
 
     void call(int na= 0, int nr = 0)                        { return lua_call(_L, na, nr); }
     int pcall(int na= 0, int nr = 0, int eh = 0)            { return lua_pcall(_L, na, nr, eh); }
+
+    std::string     chk_raw_str(int i)                      { const char* s; size_t n; s = luaL_checklstring(_L, i, &n); return {s,n}; }
+    std::wstring    chk_str(int i)                          { return from_utf8(chk_raw_str(i)); }
+    static bool     _lua_checkbool(lua_State* L, int i)     { luaL_argcheck(L, lua_isboolean(L, i), i, "bool expected"); return !!lua_toboolean(L, i); }
+    bool            chk_bool(int i)                         { return _lua_checkbool(_L, i); }
+    bool            opt_bool(int i, bool def)               { return luaL_opt(_L, _lua_checkbool, i, def); }
 
 protected:
     lua_State* _L;

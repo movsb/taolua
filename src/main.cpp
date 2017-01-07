@@ -13,6 +13,8 @@ int wmain(int argc, wchar_t* argv[])
 
     assert(argc == 2);
 
+    system("chcp 65001 > nul 2>&1");
+
     lua.open();
 
     MODULE(file_system);
