@@ -4,6 +4,7 @@
 
 #include "lib/file_system.h"
 #include "lib/window_manage.h"
+#include "lib/psapi.h"
 
 using namespace taolua;
 
@@ -19,6 +20,7 @@ int wmain(int argc, wchar_t* argv[])
 
     MODULE(file_system);
     MODULE(window_manage);
+    MODULE(psapi);
 
     lua.exec(argv[1]);
 

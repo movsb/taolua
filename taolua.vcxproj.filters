@@ -117,6 +117,12 @@
     <ClInclude Include="src\lib\window_manage.h">
       <Filter>Source Files\lib</Filter>
     </ClInclude>
+    <ClInclude Include="src\lib\psapi.h">
+      <Filter>Source Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\winhlp.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\stdafx.cpp">
@@ -234,6 +240,9 @@
       <Filter>Source Files\lib</Filter>
     </ClCompile>
     <ClCompile Include="src\lib\window_manage.cpp">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lib\psapi.cpp">
       <Filter>Source Files\lib</Filter>
     </ClCompile>
   </ItemGroup>

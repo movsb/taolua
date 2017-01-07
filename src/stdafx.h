@@ -27,3 +27,4 @@ extern "C" {
 
 #include "lua.h"
 #include "charset.h"
+#include "winhlp.h"

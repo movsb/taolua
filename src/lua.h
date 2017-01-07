@@ -168,6 +168,8 @@ public:
             return p;
         }
 
+    void push(DWORD dw)                                     { return push(lua_Integer(dw)); }
+
     // get functions (Lua -> stack)
     int     getglobal(const char* name)                     { return lua_getglobal(_L, name); }
     int     gettable(int t)                                 { return lua_gettable(_L, t); }
@@ -189,6 +191,8 @@ public:
     void    setglobal(const char* name)                     { return lua_setglobal(_L, name); }
     void    settable(int t)                                 { return lua_settable(_L, t); }
     void    setfield(int t, const char* k)                  { return lua_setfield(_L, t, k); }
+    template<typename T>
+        void    setfield(const char* k, const T& t)         { push(t); return setfield(-2, k); }
     void    seti(int t, lua_Integer n)                      { return lua_seti(_L, t, n); }
     void    rawset(int i)                                   { return lua_rawset(_L, i); }
     void    rawseti(int t, lua_Integer n)                   { return lua_rawseti(_L, t, n); }
