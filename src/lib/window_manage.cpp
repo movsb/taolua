@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "window_manage.h"
 
-namespace taolua {
-namespace window_manage {
+BEG_LIB_NAMESPACE(window_manage)
 
 DECL_OBJECT(WindowObject)
 {
@@ -18,38 +17,40 @@ public:
         OBJAPI(hide)
         OBJAPI2("class", class_name)
         OBJAPI(title)
+        OBJAPI(sendmsg)
+        OBJAPI(postmsg)
     END_OBJ_API()
 
-    LIBAPI(__tostring)
+    LUAAPI(__tostring)
     {
         DECL_THIS;
         G.push_fmt(L"%s { hWnd: 0x%08X }", __namew__(), O._hwnd);
         return 1;
     }
 
-    LIBAPI(hwnd)
+    LUAAPI(hwnd)
     {
         DECL_THIS;
         G.push(O._hwnd);
         return 1;
     }
 
-    LIBAPI(show)
+    LUAAPI(show)
     {
         DECL_THIS;
-        auto cmd = G.opt_int(1, SW_SHOW);
+        auto cmd = G.opt_int(2, SW_SHOW);
         ::ShowWindow(O._hwnd, cmd);
         return 0;
     }
 
-    LIBAPI(hide)
+    LUAAPI(hide)
     {
         DECL_THIS;
         ::ShowWindow(O._hwnd, SW_HIDE);
         return 0;
     }
 
-    LIBAPI(class_name)
+    LUAAPI(class_name)
     {
         DECL_THIS;
         wchar_t cls[MAX_PATH];
@@ -59,7 +60,7 @@ public:
         return 1;
     }
 
-    LIBAPI(title)
+    LUAAPI(title)
     {
         DECL_THIS;
         size_t len = ::GetWindowTextLength(O._hwnd);
@@ -70,13 +71,63 @@ public:
         return 1;
     }
 
+    LUAAPI(sendmsg)
+    {
+        DECL_THIS;
+        auto msg = (UINT)G.check_int(2);
+        auto ty3 = G.type(3), ty4 = G.type(4);
+        std::wstring str3, str4;
+        WPARAM wp = 0; LPARAM lp = 0;
+
+        if(ty3 == LUA_TNUMBER)      wp = G.check_int(3);
+        else if(ty3 == LUA_TSTRING) { str3 = G.check_str(3); wp = (WPARAM)str3.c_str(); }
+        else if(ty3 == LUA_TNONE) {}
+        else G.argerr(3, "number or string expected");
+
+        if(ty4 == LUA_TNUMBER)      lp = G.check_int(4);
+        else if(ty4 == LUA_TSTRING) { str4 = G.check_str(4); lp = (LPARAM)str4.c_str(); }
+        else if(ty4 == LUA_TNONE) {}
+        else G.argerr(4, "number or string expected");
+
+        int ret = ::SendMessage(O._hwnd, msg, wp, lp);
+
+        G.push(ret);
+
+        return 1;
+    }
+
+    LUAAPI(postmsg)
+    {
+        DECL_THIS;
+        auto msg = (UINT)G.check_int(2);
+        auto ty3 = G.type(3), ty4 = G.type(4);
+        std::wstring str3, str4;
+        WPARAM wp = 0; LPARAM lp = 0;
+
+        if(ty3 == LUA_TNUMBER)      wp = G.check_int(3);
+        else if(ty3 == LUA_TSTRING) { str3 = G.check_str(3); wp = (WPARAM)str3.c_str(); }
+        else if(ty3 == LUA_TNONE) {}
+        else G.argerr(3, "number or string expected");
+
+        if(ty4 == LUA_TNUMBER)      lp = G.check_int(4);
+        else if(ty4 == LUA_TSTRING) { str4 = G.check_str(4); lp = (LPARAM)str4.c_str(); }
+        else if(ty4 == LUA_TNONE) {}
+        else G.argerr(4, "number or string expected");
+
+        int ret = ::PostMessage(O._hwnd, msg, wp, lp);
+
+        G.push(ret);
+
+        return 1;
+    }
+
 protected:
     HWND _hwnd;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-LIBAPI(towinobj)
+LUAAPI(towinobj)
 {
     DECL_WRAP;
     auto wnd = G.check_udata<HWND>(1);
@@ -84,21 +135,21 @@ LIBAPI(towinobj)
     return 1;
 }
 
-LIBAPI(get_active_window)
+LUAAPI(get_active_window)
 {
     DECL_WRAP;
     G.push(::GetActiveWindow());
     return 1;
 }
 
-LIBAPI(get_foreground_window)
+LUAAPI(get_foreground_window)
 {
     DECL_WRAP;
     G.push(::GetForegroundWindow());
     return 1;
 }
 
-LIBAPI(find_window)
+LUAAPI(find_window)
 {
     DECL_WRAP;
     auto title = G.opt_str(1, L"t");
@@ -110,14 +161,40 @@ LIBAPI(find_window)
     return 1;
 }
 
-BEG_LUA_API()
-    LUAAPI(towinobj)
-    LUAAPI(get_active_window)
-    LUAAPI(get_foreground_window)
-    LUAAPI(find_window)
-END_LUA_API()
+BEG_LIB_API()
+    LIBAPI(towinobj)
+    LIBAPI(get_active_window)
+    LIBAPI(get_foreground_window)
+    LIBAPI(find_window)
+END_LIB_API()
+
+DECL_MODULE_MAGIC(__init__)
+{
+#define _ STRINTPAIR
+    static CStr2Int winmsg {
+        _(WM_NULL)
+        _(WM_CREATE)
+        _(WM_DESTROY)
+        _(WM_MOVE)
+        _(WM_SIZE)
+        _(WM_ACTIVATE)
+        _(WM_SETFOCUS)
+        _(WM_KILLFOCUS)
+        _(WM_ENABLE)
+        _(WM_SETTEXT)
+        _(WM_GETTEXT)
+        _(WM_GETTEXTLENGTH)
+        _(WM_PAINT)
+        _(WM_CLOSE)
+        _(WM_QUIT)
+        _(WM_ACTIVATEAPP)
+    };
+#undef _
+
+    G.newtable(winmsg);
+    G.setfield(-2, "winmsg");
+}
 
 //////////////////////////////////////////////////////////////////////////
 
-}
-}
+END_LIB_NAMESPACE()

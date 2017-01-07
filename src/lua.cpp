@@ -25,11 +25,12 @@ void TaoLua::main()
     getglobal("taolua");
 }
 
-void TaoLua::newlib(const char* name, const luaL_Reg fns[])
+void TaoLua::newlib(const char* name, const luaL_Reg fns[], void(*init)(LuaWrapper G))
 {
     main();
     newtable();
     setfuncs(fns);
+    init(_L);
     setfield(-2, name);
     pop();
 }
@@ -72,6 +73,16 @@ void LuaWrapper::newtable(const std::vector<std::wstring>& arr)
     for(const auto& a : arr) {
         push(a);
         rawseti(-2, i++);
+    }
+}
+
+void LuaWrapper::newtable(const CStr2Int& map)
+{
+    newtable(0, map.size());
+
+    for(const auto& m : map) {
+        push(m.second);
+        setfield(-2, m.first);
     }
 }
 

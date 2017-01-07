@@ -1,12 +1,11 @@
 #include "stdafx.h"
 #include "file_system.h"
 
-namespace taolua {
-namespace file_system {
+BEG_LIB_NAMESPACE(file_system)
 
 //////////////////////////////////////////////////////////////////////////
 
-LIBAPI(get_folder_files)
+LUAAPI(get_folder_files)
 {
     DECL_WRAP;
 
@@ -26,9 +25,14 @@ LIBAPI(get_folder_files)
     return merge ? 1 : 2;
 }
 
-BEG_LUA_API()
-    LUAAPI(get_folder_files)
-END_LUA_API()
+BEG_LIB_API()
+    LIBAPI(get_folder_files)
+END_LIB_API()
+
+DECL_MODULE_MAGIC(__init__)
+{
+
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -77,6 +81,4 @@ void get_folder_files(const std::wstring& path, const std::wstring& cur,
     }
 }
 
-}
-
-}
+END_LIB_NAMESPACE()

@@ -4,19 +4,21 @@
 
 namespace taolua {
 
-#define MODULE(name) lua.newlib(#name, taolua::name::__methods__)
+#define MODULE(name) lua.newlib(#name, taolua::name::__methods__, taolua::name::__init__)
 
-#define DECL_METHODS extern const luaL_Reg __methods__[]
+#define DECL_MODULE_MAGIC(name) void name(LuaWrapper G)
+#define DECL_MODULE extern const luaL_Reg __methods__[]; DECL_MODULE_MAGIC(__init__)
 #define DECL_WRAP LuaWrapper G(L)
-#define LIBAPI(name) static int name(lua_State* L)
+#define LUAAPI(name) static int name(lua_State* L)
+#define STRINTPAIR(name)            {#name, name},
+#define STRINTPAIR2(name1,name2)    {name1, name2},
 
-#define BEG_LUA_API() \
+#define BEG_LIB_API() \
     const luaL_Reg __methods__[]\
     {
-#define LUAAPI(name) {#name, name},
-#define LUAAPI2(name1, name2) { name1, name2},
-#define END_LUA_API()   {nullptr, nullptr} };
-
+#define LIBAPI      STRINTPAIR
+#define LIBAPI2     STRINTPAIR2
+#define END_LIB_API()   {nullptr, nullptr} };
 
 #define DECL_OBJECT(T) class T
 #define BEG_OBJ_API(T, name_) \
@@ -31,9 +33,12 @@ namespace taolua {
         };\
         return s_apis;\
     }
-#define OBJAPI LUAAPI
-#define OBJAPI2 LUAAPI2
+#define OBJAPI      STRINTPAIR
+#define OBJAPI2     STRINTPAIR2
 #define DECL_THIS LuaWrapper G(L); auto& O = *check_this(L)
+
+#define BEG_LIB_NAMESPACE(name) namespace taolua { namespace name {
+#define END_LIB_NAMESPACE() }}
 
 template<typename T, typename B>
 struct OptStrT
@@ -51,6 +56,8 @@ struct OptStrT
 
 typedef OptStrT<std::string, char>      OptStrRaw;
 typedef OptStrT<std::wstring, wchar_t>  OptStr;
+
+typedef std::unordered_map<const char*, int> CStr2Int;
 
 class LuaWrapper
 {
@@ -172,6 +179,7 @@ public:
 
     void    newtable(int na = 0, int nk = 0)                { return lua_createtable(_L, na, nk); }
     void    newtable(const std::vector<std::wstring>& arr);
+    void    newtable(const CStr2Int& map);
     int     newmetatable(const char* name)                  { return luaL_newmetatable(_L, name); }
     void*   newud(size_t size)                              { return lua_newuserdata(_L, size); }
     int     getmetatable(int o)                             { return lua_getmetatable(_L, o); }
@@ -217,7 +225,7 @@ public:
     void close();
     void main();
 
-    void newlib(const char* name, const luaL_Reg fns[]);
+    void newlib(const char* name, const luaL_Reg fns[], void(*init)(LuaWrapper G));
 
     // load
     int exec(const std::wstring& file);

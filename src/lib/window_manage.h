@@ -1,8 +1,7 @@
 #pragma once
 
-namespace taolua {
-namespace window_manage {
+BEG_LIB_NAMESPACE(window_manage)
 
-DECL_METHODS;
+DECL_MODULE;
 
-}}
+END_LIB_NAMESPACE()
