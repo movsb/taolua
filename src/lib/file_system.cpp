@@ -34,8 +34,8 @@ LIBAPI(get_folder_files)
     std::vector<std::wstring> files;
     std::vector<std::wstring> folders;
 
-    auto path = G.chk_str(1);
-    auto sub = G.chk_bool(2);
+    auto path = G.check_str(1);
+    auto sub = G.check_bool(2);
     auto merge = G.opt_bool(3, false);
 
     get_folder_files(path, L"", sub, &files, merge ? &files : &folders);
