@@ -3,12 +3,12 @@
 #include "lua.h"
 
 #include "lib/file_system.h"
+#include "lib/window_manage.h"
 
 using namespace taolua;
 
 int wmain(int argc, wchar_t* argv[])
 {
-    int r;
     TaoLua lua;
 
     assert(argc == 2);
@@ -18,6 +18,7 @@ int wmain(int argc, wchar_t* argv[])
     lua.open();
 
     MODULE(file_system);
+    MODULE(window_manage);
 
     lua.exec(argv[1]);
 

@@ -15,6 +15,7 @@
 #include <codecvt>
 #include <memory>
 
+#include <tchar.h>
 #include <Windows.h>
 
 extern "C" {

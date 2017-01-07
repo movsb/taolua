@@ -114,6 +114,9 @@
     <ClInclude Include="src\lib\file_system.h">
       <Filter>Source Files\lib</Filter>
     </ClInclude>
+    <ClInclude Include="src\lib\window_manage.h">
+      <Filter>Source Files\lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\stdafx.cpp">
@@ -228,6 +231,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\lib\file_system.cpp">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lib\window_manage.cpp">
       <Filter>Source Files\lib</Filter>
     </ClCompile>
   </ItemGroup>

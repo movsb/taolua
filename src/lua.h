@@ -14,21 +14,43 @@ namespace taolua {
     const luaL_Reg methods[]\
     {
 #define LUAAPI(name) {#name, name},
+#define LUAAPI2(name1, name2) { name1, name2},
 #define END_LUA_API()   {nullptr, nullptr} };
 
+
+#define DECL_OBJECT(T) class T
 #define BEG_OBJ_API(T, name_) \
-    static T* check_this(lua_State* L) {return reinterpret_cast<T*>(luaL_checkudata(L, 1, name()));}\
-    static const char* const name() { return #name_; }\
-    static const luaL_Reg* const apis()\
+    static T* check_this(lua_State* L) {return reinterpret_cast<T*>(luaL_checkudata(L, 1, _name()));}\
+    static const char* const _name() { return "" ## name_; }\
+    static const wchar_t* const _namew() { return L"" ## name_; }\
+    static const luaL_Reg* const _apis()\
     {\
-        static luaL_Reg _apis[] = {
+        static luaL_Reg s_apis[] = {
 #define END_OBJ_API() \
             {nullptr, nullptr}\
         };\
-        return _apis;\
+        return s_apis;\
     }
 #define OBJAPI LUAAPI
-#define DECL_THIS auto& G = *check_this(L)
+#define OBJAPI2 LUAAPI2
+#define DECL_THIS LuaWrapper G(L); auto& O = *check_this(L)
+
+template<typename T, typename B>
+struct OptStrT
+{
+    OptStrT(B const * s, size_t n, bool b, B const * d) : _s(s ? s : T()), _b(b), _d(d) { }
+    OptStrT(T&& s, bool b, B const* d) : _s(s), _b(b), _d(d) { }
+    T* operator->() { return &_s; }
+    operator T&() { return _s; }
+    operator B const *() const { return *this ? _s.c_str() : _d; }
+    operator bool() const { return _b; }
+    bool        _b;
+    T           _s;
+    B const *   _d;
+};
+
+typedef OptStrT<std::string, char>      OptStrRaw;
+typedef OptStrT<std::wstring, wchar_t>  OptStr;
 
 class LuaWrapper
 {
@@ -74,8 +96,8 @@ public:
 
     std::string     check_str_raw(int i)                    { const char* s; size_t n; s = luaL_checklstring(_L, i, &n); return {s,n}; }
     std::wstring    check_str(int i)                        { return from_utf8(check_str_raw(i)); }
-    std::string     opt_str_raw(int i, const std::string& def) { const char* s; size_t n; s = luaL_optlstring(_L, i, def.c_str(), &n); return {s, n}; }
-    std::wstring    opt_str(int i, const std::wstring& def) { return from_utf8(opt_str_raw(i, to_utf8(def))); }
+    OptStrRaw       opt_str_raw(int i, const char* def="")  { const char* s; size_t n; s = luaL_optlstring(_L, i, def, &n); return {s, n, s != def, def}; }
+    OptStr          opt_str(int i, const wchar_t* def=L"")  { auto raw = opt_str_raw(i, def ? to_utf8(def).c_str() : nullptr); return { from_utf8(raw), raw, def};}
 
     lua_Number      check_number(int i)                     { return luaL_checknumber(_L, i); }
     lua_Number      opt_number(int i, lua_Number def)       { return luaL_optnumber(_L, i, def); }
@@ -90,7 +112,9 @@ public:
     bool            opt_bool(int i, bool def)               { return luaL_opt(_L, _lua_checkbool, i, def); }
 
     template<typename T>
-    T*              check_udata(int i)                      { return luaL_checkudata(_L, i, T::name()); }
+    T               check_udata(int i)                      { if(islightuserdata(i)) return (T)touserdata(i); argerr(i, (typeid(T).name() + std::string(" expected")).c_str()); return T(); }
+    template<typename T>
+    T&              check_object(int i)                     { return *(T*)luaL_checkudata(_L, i, T::_name()); }
 
     // push functions (C -> stack)
     void push()                                             { return lua_pushnil(_L); }
@@ -98,8 +122,24 @@ public:
     void push(lua_Integer i)                                { return lua_pushinteger(_L, i); }
     void push(lua_Number n)                                 { return lua_pushnumber(_L, n); }
     void push(const char* s)                                { return (void)lua_pushstring(_L, s); }
-    const char* push(const char* f, ...)                    { va_list va; va_start(va, f); const char* p = lua_pushvfstring(_L, f, va); va_end(va); return p; }
-    void push(const std::wstring& s)                        { auto _s(to_utf8(s)); return (void)lua_pushlstring(_L, _s.c_str(), _s.size()); }
+    void push(const char* s, size_t n)                      { return (void)lua_pushlstring(_L, s, n); }
+    void push(const wchar_t* s)                             { return push(to_utf8(s)); }
+    void push(const wchar_t* s, size_t n, bool raw = false) { return raw ? push((const char*)s, n * 2) : push(to_utf8({s, n})); }
+    // const char* push(const char* f, ...)                    { va_list va; va_start(va, f); const char* p = lua_pushvfstring(_L, f, va); va_end(va); return p; }
+    void push_fmt(const wchar_t* f, ...)
+    {
+        va_list va;
+        wchar_t buf[1024];
+        wchar_t* p;
+        va_start(va, f);
+        size_t n = _vscwprintf(f, va);
+        p = n > _countof(buf) - 1 ? new wchar_t[n + 1] : buf;
+        _vswprintf(p, f, va);
+        push(p, n);
+        if(p != buf) delete[] p;
+    }
+    void push(const std::wstring& s, bool raw = false)      { return raw ? push(s.c_str(), s.size(), true) : push(to_utf8(s)); }
+    void push(const std::string& s)                         { return (void)push(s.c_str(), s.size()); }
     void push(bool b)                                       { return lua_pushboolean(_L, b); }
     void push(lua_CFunction f, int nup = 0)                 { return lua_pushcclosure(_L, f, nup); }
     void push(void* p)                                      { return lua_pushlightuserdata(_L, p); }
@@ -108,10 +148,10 @@ public:
         {
             auto p = new (newud(sizeof(T))) T(std::forward<Args>(args)...);
 
-            if(getmetatable(T::name()) == LUA_TNIL) {
+            if(getmetatable(T::_name()) == LUA_TNIL) {
                 pop();
-                newmetatable(T::name());
-                setfuncs(T::apis(), 0);
+                newmetatable(T::_name());
+                setfuncs(T::_apis(), 0);
                 copy(-1);
                 setfield(-2, "__index");
             }
