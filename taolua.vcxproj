@@ -177,6 +177,7 @@
     <ClInclude Include="3rd\lua\lzio.h" />
     <ClInclude Include="src\charset.h" />
     <ClInclude Include="src\core\winapi.h" />
+    <ClInclude Include="src\lib\dialog.h" />
     <ClInclude Include="src\lib\file_system.h" />
     <ClInclude Include="src\lib\psapi.h" />
     <ClInclude Include="src\lib\window_manage.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="3rd\lua\lvm.c" />
     <ClCompile Include="3rd\lua\lzio.c" />
     <ClCompile Include="src\core\winapi.cpp" />
+    <ClCompile Include="src\lib\dialog.cpp" />
     <ClCompile Include="src\lib\file_system.cpp" />
     <ClCompile Include="src\lib\psapi.cpp" />
     <ClCompile Include="src\lib\window_manage.cpp" />

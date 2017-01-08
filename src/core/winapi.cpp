@@ -49,6 +49,7 @@ DECL_MODULE_MAGIC(__init__)
 {
     G.copy(-1);
     G.setglobal("winapi");
+    G.setfield("_errno", 0);
 }
 
 //////////////////////////////////////////////////////////////////////////

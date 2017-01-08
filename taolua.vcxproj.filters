@@ -129,6 +129,9 @@
     <ClInclude Include="src\core\winapi.h">
       <Filter>Source Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="src\lib\dialog.h">
+      <Filter>Source Files\lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\stdafx.cpp">
@@ -253,6 +256,9 @@
     </ClCompile>
     <ClCompile Include="src\core\winapi.cpp">
       <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lib\dialog.cpp">
+      <Filter>Source Files\lib</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

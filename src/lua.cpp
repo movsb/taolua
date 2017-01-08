@@ -60,6 +60,14 @@ void TaoLua::_init_global()
 {
     newtable();
     setglobal("taolua");
+
+    auto sleep = [](lua_State* L) -> int {
+        ::Sleep((DWORD)luaL_checkinteger(L, 1));
+        return 0;
+    };
+
+    push(sleep);
+    setglobal("sleep");
 }
 
 //////////////////////////////////////////////////////////////////////////

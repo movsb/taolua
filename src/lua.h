@@ -95,6 +95,8 @@ public:
     bool    istable(int i)                                  { return !!lua_istable(_L, i); }
 
     lua_Integer     tointeger(int i)                        { return lua_tointeger(_L, i); }
+    template<typename T>
+    T               tointeger(int i)                        { return (T)tointeger(i); }
     lua_Number      tonumber(int i)                         { return lua_tonumber(_L, i); }
     bool            tobool(int i)                           { return !!lua_toboolean(_L, i); }
     const char*     tostring(int i)                         { return lua_tostring(_L, i); }
