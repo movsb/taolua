@@ -2,6 +2,8 @@
 
 #include "lua.h"
 
+#include "core/winapi.h"
+
 #include "lib/file_system.h"
 #include "lib/window_manage.h"
 #include "lib/psapi.h"
@@ -17,6 +19,8 @@ int wmain(int argc, wchar_t* argv[])
     system("chcp 65001 > nul 2>&1");
 
     lua.open();
+
+    MODULE(winapi);
 
     MODULE(file_system);
     MODULE(window_manage);

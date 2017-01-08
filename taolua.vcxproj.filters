@@ -22,6 +22,9 @@
     <Filter Include="Source Files\lib">
       <UniqueIdentifier>{848a6600-d766-4176-8d11-373cea9fc2e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\core">
+      <UniqueIdentifier>{1ca50a3a-c36b-4d91-9a7e-70afe47f5f30}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -122,6 +125,9 @@
     </ClInclude>
     <ClInclude Include="src\winhlp.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\winapi.h">
+      <Filter>Source Files\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -244,6 +250,9 @@
     </ClCompile>
     <ClCompile Include="src\lib\psapi.cpp">
       <Filter>Source Files\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\winapi.cpp">
+      <Filter>Source Files\core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
