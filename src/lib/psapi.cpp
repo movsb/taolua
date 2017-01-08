@@ -15,6 +15,7 @@ public:
         OBJAPI(__tostring)
         OBJAPI(threads)
         OBJAPI(modules)
+        OBJAPI(term)
     END_OBJ_API()
 
 public:
@@ -74,6 +75,22 @@ public:
         }
 
         return succ ? 1 : 0;
+    }
+
+    LUAAPI(term)
+    {
+        DECL_THIS;
+        AutoHandle handle = ::OpenProcess(PROCESS_TERMINATE, FALSE, O._pid);
+        if(handle) {
+            auto code = G.opt_integer<DWORD>(2, -1);
+            BoolVal ok = ::TerminateProcess(handle, code);
+            G.push(ok);
+        }
+        else {
+            SAVE_LAST_ERROR;
+            G.push(false);
+        }
+        return 1;
     }
 
 protected:

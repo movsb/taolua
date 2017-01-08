@@ -20,4 +20,24 @@ struct HandleBooler { bool operator()(HANDLE h) const { return h != nullptr && h
 struct HandleCloser { bool operator()(HANDLE h) const { return !!::CloseHandle(h); } };
 typedef AutoCloseT<HANDLE, HandleBooler, HandleCloser> AutoHandle;
 
+class BoolVal
+{
+public:
+    BoolVal(BOOL b) : _b(b) {}
+    BoolVal(bool b) : _b(b) {}
+
+    operator BOOL() const { return _b; }
+    operator bool() const { return !!_b; }
+
+    bool to_lua() const { return operator bool(); }
+
+protected:
+    BOOL _b;
+};
+
+#define SAVE_LAST_ERROR \
+    if(G.getglobal("winapi") == LUA_TTABLE) {\
+        G.setfield("_errno", ::GetLastError());\
+        G.pop();\
+    }
 }

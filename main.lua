@@ -3,7 +3,9 @@ local printf = function(fmt, ...)
 end
 
 local ps = taolua.psapi
-local wa = taolua.winapi
-
-print(winapi)
+local pses = ps.processes()
+if pses then
+    print(ps.topsobj(13804):term())
+    print(winapi.error())
+end
 

@@ -75,6 +75,7 @@ public:
     void    copy(int i)                                     { return lua_pushvalue(_L, i); }
     void    copy(int from, int to)                          { return lua_copy(_L, from, to); }
     void    pop(int n = 1)                                  { return lua_pop(_L, n); }
+    void    remove(int i)                                   { return lua_remove(_L, i); }
 
     // accessors (stack -> C)
     int     type(int i)                                     { return lua_type(_L, i); }
@@ -111,6 +112,11 @@ public:
 
     lua_Integer     check_integer(int i)                    { return luaL_checkinteger(_L, i);}
     lua_Integer     opt_integer(int i, lua_Integer def)     { return luaL_optinteger(_L, i, def);}
+    template<typename T>
+    T               check_integer(int i)                    { return (T)check_int(i); }
+    template<typename T>
+    T               opt_integer(int i, T def)               { return (T)opt_int(i, (lua_Integer)def); }
+
     int             check_int(int i)                        { return (int)luaL_checkinteger(_L, i);}
     int             opt_int(int i, int def)                 { return (int)luaL_optinteger(_L, i, def);}
 
@@ -168,12 +174,16 @@ public:
             return p;
         }
 
+    template<typename T, typename = decltype(&T::to_lua)>
+    void push(const T& v) { push(v.to_lua()); }
+
     void push(DWORD dw)                                     { return push(lua_Integer(dw)); }
 
     // get functions (Lua -> stack)
     int     getglobal(const char* name)                     { return lua_getglobal(_L, name); }
     int     gettable(int t)                                 { return lua_gettable(_L, t); }
     int     getfield(int t, const char* k)                  { return lua_getfield(_L, t, k); }
+    int     getfield(const char* k, int t = -1)             { return lua_getfield(_L, t, k); }
     int     geti(int t, lua_Integer n)                      { return lua_geti(_L, t, n); }
     int     rawget(int t)                                   { return lua_rawget(_L, t); }
     int     rawgeti(int t, lua_Integer n)                   { return lua_rawgeti(_L, t, n); }
