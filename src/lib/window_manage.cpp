@@ -66,7 +66,7 @@ public:
         size_t len = ::GetWindowTextLength(O._hwnd);
         auto str = std::make_unique<wchar_t[]>(len + 1);
         str.get()[0] = str.get()[len] = L'\0';
-        ::GetWindowText(O._hwnd, str.get(), len + 1);
+        ::GetWindowText(O._hwnd, str.get(), (int)(len + 1));
         G.push(str.get());
         return 1;
     }
@@ -89,9 +89,9 @@ public:
         else if(ty4 == LUA_TNONE) {}
         else G.argerr(4, "number or string expected");
 
-        int ret = ::SendMessage(O._hwnd, msg, wp, lp);
+        LRESULT ret = ::SendMessage(O._hwnd, msg, wp, lp);
 
-        G.push(ret);
+        G.push(lua_Integer(ret));
 
         return 1;
     }
