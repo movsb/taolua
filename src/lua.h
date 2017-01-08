@@ -1,50 +1,46 @@
 #pragma once
 
 #include "charset.h"
+#include "winhlp.h"
 
 namespace taolua {
 
-#define MODULE(name) lua.newlib(#name, taolua::name::__methods__, taolua::name::__init__)
+#define MODULE(name)                lua.newlib(#name, taolua::name::__methods__, taolua::name::__init__)
 
-#define DECL_MODULE_MAGIC(name) void name(LuaWrapper G)
-#define DECL_MODULE extern const luaL_Reg __methods__[]; DECL_MODULE_MAGIC(__init__)
-#define DECL_WRAP LuaWrapper G(L)
-#define LUAAPI(name) static int name(lua_State* L)
+#define DECL_MODULE_MAGIC(name)     void name(LuaWrapper G)
+#define DECL_MODULE                 extern const luaL_Reg __methods__[]; DECL_MODULE_MAGIC(__init__)
+
+#define LUAAPI(name)                static int name(lua_State* L)
 #define STRINTPAIR(name)            {#name, name},
 #define STRINTPAIR2(name1,name2)    {name1, name2},
 
-#define BEG_LIB_API() \
-    const luaL_Reg __methods__[]\
-    {
-#define LIBAPI      STRINTPAIR
-#define LIBAPI2     STRINTPAIR2
-#define END_LIB_API()   {nullptr, nullptr} };
+#define BEG_LIB_API()               const luaL_Reg __methods__[] {
+#define LIBAPI                      STRINTPAIR
+#define LIBAPI2                     STRINTPAIR2
+#define END_LIB_API()               {nullptr, nullptr} };
 
-#define DECL_OBJECT(T) class T
+#define DECL_OBJECT(T)              class T
 #define BEG_OBJ_API(T, name_) \
-    static T* check_this(lua_State* L) {return reinterpret_cast<T*>(luaL_checkudata(L, 1, __name__()));}\
-    static const char* const __name__() { return "" ## name_; }\
-    static const wchar_t* const __namew__() { return L"" ## name_; }\
-    static const luaL_Reg* const __apis__()\
-    {\
-        static luaL_Reg s_apis[] = {
-#define END_OBJ_API() \
-            {nullptr, nullptr}\
-        };\
-        return s_apis;\
-    }
-#define OBJAPI      STRINTPAIR
-#define OBJAPI2     STRINTPAIR2
-#define DECL_THIS LuaWrapper G(L); auto& O = *check_this(L)
+                                    static T* __this__(lua_State* L) {return reinterpret_cast<T*>(luaL_checkudata(L, 1, __name__()));}\
+                                    static const char* const __name__() { return "" ## name_; }\
+                                    static const wchar_t* const __namew__() { return L"" ## name_; }\
+                                    static const luaL_Reg* const __apis__() { static luaL_Reg s_apis[] = {
+#define OBJAPI                      STRINTPAIR
+#define OBJAPI2                     STRINTPAIR2
+#define END_OBJ_API()               {nullptr, nullptr} }; return s_apis; }
 
-#define BEG_LIB_NAMESPACE(name) namespace taolua { namespace name {
-#define END_LIB_NAMESPACE() }}
+#define DECL_WRAP                   LuaWrapper G(L)
+#define DECL_THIS                   DECL_WRAP; auto& O = *__this__(L)
+
+#define BEG_LIB_NAMESPACE(name)     namespace taolua { namespace name {
+#define END_LIB_NAMESPACE()         }}
 
 template<typename T, typename B>
-struct OptStrT
+struct MyStrT
 {
-    OptStrT(B const * s, size_t n, bool b, B const * d) : _s(s ? s : T()), _b(b), _d(d) { }
-    OptStrT(T&& s, bool b, B const* d) : _s(s), _b(b), _d(d) { }
+    MyStrT(B const * s, size_t n, bool b, B const * d) : _s(s ? s : T()), _b(b), _d(d) { }
+    MyStrT(T&& s, bool b, B const* d) : _s(s), _b(b), _d(d) { }
+    MyStrT(T&& s) : _s(s), _b(true), _d(nullptr) {}
     T* operator->() { return &_s; }
     operator T&() { return _s; }
     operator B const *() const { return *this ? _s.c_str() : _d; }
@@ -54,8 +50,8 @@ struct OptStrT
     B const *   _d;
 };
 
-typedef OptStrT<std::string, char>      OptStrRaw;
-typedef OptStrT<std::wstring, wchar_t>  OptStr;
+typedef MyStrT<std::string, char>      MyStrRaw;
+typedef MyStrT<std::wstring, wchar_t>  MyStr;
 
 typedef std::unordered_map<const char*, int> CStr2Int;
 
@@ -106,8 +102,8 @@ public:
 
     std::string     check_str_raw(int i)                    { const char* s; size_t n; s = luaL_checklstring(_L, i, &n); return {s,n}; }
     std::wstring    check_str(int i)                        { return from_utf8(check_str_raw(i)); }
-    OptStrRaw       opt_str_raw(int i, const char* def="")  { const char* s; size_t n; s = luaL_optlstring(_L, i, def, &n); return {s, n, s != def, def}; }
-    OptStr          opt_str(int i, const wchar_t* def=L"")  { auto raw = opt_str_raw(i, def ? to_utf8(def).c_str() : nullptr); return { from_utf8(raw), raw, def};}
+    MyStrRaw       opt_str_raw(int i, const char* def="")  { const char* s; size_t n; s = luaL_optlstring(_L, i, def, &n); return {s, n, s != def, def}; }
+    MyStr          opt_str(int i, const wchar_t* def=L"")  { auto raw = opt_str_raw(i, def ? to_utf8(def).c_str() : nullptr); return { from_utf8(raw), raw, def};}
 
     lua_Number      check_number(int i)                     { return luaL_checknumber(_L, i); }
     lua_Number      opt_number(int i, lua_Number def)       { return luaL_optnumber(_L, i, def); }
@@ -115,9 +111,9 @@ public:
     lua_Integer     check_integer(int i)                    { return luaL_checkinteger(_L, i);}
     lua_Integer     opt_integer(int i, lua_Integer def)     { return luaL_optinteger(_L, i, def);}
     template<typename T>
-    T               check_integer(int i)                    { return (T)check_int(i); }
+    T               check_integer(int i)                    { return (T)luaL_checkinteger(_L, i); }
     template<typename T>
-    T               opt_integer(int i, T def)               { return (T)opt_int(i, (lua_Integer)def); }
+    T               opt_integer(int i, T def)               { return (T)luaL_optinteger(_L, i, (lua_Integer)def); }
 
     int             check_int(int i)                        { return (int)luaL_checkinteger(_L, i);}
     int             opt_int(int i, int def)                 { return (int)luaL_optinteger(_L, i, def);}
@@ -140,7 +136,6 @@ public:
     void push(const char* s, size_t n)                      { return (void)lua_pushlstring(_L, s, n); }
     void push(const wchar_t* s)                             { return push(to_utf8(s)); }
     void push(const wchar_t* s, size_t n, bool raw = false) { return raw ? push((const char*)s, n * 2) : push(to_utf8({s, n})); }
-    // const char* push(const char* f, ...)                    { va_list va; va_start(va, f); const char* p = lua_pushvfstring(_L, f, va); va_end(va); return p; }
     void push_fmt(const wchar_t* f, ...)
     {
         va_list va;

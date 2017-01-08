@@ -8,6 +8,7 @@
 #include "lib/window_manage.h"
 #include "lib/psapi.h"
 #include "lib/dialog.h"
+#include "lib/windows_shell.h"
 
 using namespace taolua;
 
@@ -19,6 +20,8 @@ int wmain(int argc, wchar_t* argv[])
 
     system("chcp 65001 > nul 2>&1");
 
+    ::CoInitialize(nullptr);
+
     lua.open();
 
     MODULE(winapi);
@@ -27,10 +30,13 @@ int wmain(int argc, wchar_t* argv[])
     MODULE(window_manage);
     MODULE(psapi);
     MODULE(dialog);
+    MODULE(windows_shell);
 
     lua.exec(argv[1]);
 
     lua.close();
+
+    ::CoUninitialize();
 
     return 0;
 }

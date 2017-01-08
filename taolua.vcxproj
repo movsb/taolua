@@ -180,6 +180,7 @@
     <ClInclude Include="src\lib\dialog.h" />
     <ClInclude Include="src\lib\file_system.h" />
     <ClInclude Include="src\lib\psapi.h" />
+    <ClInclude Include="src\lib\windows_shell.h" />
     <ClInclude Include="src\lib\window_manage.h" />
     <ClInclude Include="src\lua.h" />
     <ClInclude Include="src\stdafx.h" />
@@ -224,6 +225,7 @@
     <ClCompile Include="src\lib\dialog.cpp" />
     <ClCompile Include="src\lib\file_system.cpp" />
     <ClCompile Include="src\lib\psapi.cpp" />
+    <ClCompile Include="src\lib\windows_shell.cpp" />
     <ClCompile Include="src\lib\window_manage.cpp" />
     <ClCompile Include="src\lua.cpp" />
     <ClCompile Include="src\main.cpp" />
