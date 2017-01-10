@@ -240,6 +240,7 @@ public:
 
     // load
     int exec(const std::wstring& file);
+    static int lua_exec(lua_State* L);
 
 protected:
     void _init_global();

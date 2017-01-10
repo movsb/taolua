@@ -38,7 +38,11 @@ void TaoLua::newlib(const char* name, const luaL_Reg fns[], void(*init)(LuaWrapp
 int TaoLua::exec(const std::wstring& file)
 {
     std::ifstream f(file, std::ios::in | std::ios::binary);
-    assert(f.is_open());
+
+    if(!f.is_open()) {
+        printf("file not found: %s\n", to_utf8(file).c_str());
+        return -1;
+    }
 
     f.seekg(0, f.end);
     auto size = (size_t)f.tellg();
@@ -49,16 +53,34 @@ int TaoLua::exec(const std::wstring& file)
 
     int r = luaL_dostring(_L, buf.get());
     if(r != LUA_OK) {
-        std::cout << lua_tostring(_L, -1);
+        auto err = to_utf8(check_str(-1));
+        printf("error executing lua: %s\n", err.c_str());
         pop();
     }
 
     return r;
 }
 
+int TaoLua::lua_exec(lua_State* L)
+{
+    DECL_WRAP;
+    G.getglobal("taolua");
+    G.getfield("__this__");
+    auto __this = G.check_udata<TaoLua*>(-1);
+    G.pop();
+    auto file = G.check_str(1);
+    auto r = __this->exec(file);
+    G.push(r);
+    return 1;
+}
+
 void TaoLua::_init_global()
 {
     newtable();
+
+    setfield("__this__", this);
+    setfield("exec", lua_exec);
+
     setglobal("taolua");
 
     auto sleep = [](lua_State* L) -> int {
