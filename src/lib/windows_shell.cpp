@@ -26,7 +26,8 @@ protected:
     {
         DECL_THIS();
         CComBSTR bstrName;
-        if((ComRet)O._p->get_Name(&bstrName)) {
+        ComRet hr = O._p->get_Name(&bstrName);
+        if(hr && bstrName) {
             S.push((wchar_t*)bstrName);
         }
         else {
@@ -77,7 +78,8 @@ protected:
         for(long i = 0; i < n; ++i) {
             CComVariant varIndex(i);
             CComPtr<FolderItemVerb> spVerb;
-            if((ComRet)O._p->Item(varIndex, &spVerb)) {
+            ComRet hr = O._p->Item(varIndex, &spVerb);
+            if(hr && spVerb) {
                 S.copy(2);
                 S.push(i);
                 S.push<ShellFolderItemVerbObject>(spVerb);
@@ -107,7 +109,8 @@ protected:
     {
         DECL_THIS();
         CComPtr<FolderItemVerbs> spVerbs;
-        if((ComRet)O._p->Verbs(&spVerbs)) {
+        ComRet hr = O._p->Verbs(&spVerbs);
+        if(hr && spVerbs) {
             S.push<ShellFolderItemVerbsObject>(spVerbs);
             return 1;
         }
@@ -137,7 +140,8 @@ protected:
         DECL_THIS();
         CComBSTR bstrName(S.check_str(2).c_str());
         CComPtr<FolderItem> spItem;
-        if((ComRet)O._p->ParseName(bstrName, &spItem)) {
+        ComRet hr = O._p->ParseName(bstrName, &spItem);
+        if(hr && spItem) {
             S.push<ShellFolderItemObject>(spItem);
             return 1;
         }
@@ -167,7 +171,8 @@ protected:
         DECL_THIS();
         CComVariant varDir(S.check_str(2).c_str());
         CComPtr<Folder> spFolder;
-        if((ComRet)O._p->NameSpace(varDir, &spFolder)) {
+        ComRet hr = O._p->NameSpace(varDir, &spFolder);
+        if(hr && spFolder) {
             S.push<ShellFolderObject>(spFolder);
             return 1;
         }
@@ -187,14 +192,14 @@ static void GetShellDispatch(IShellDispatch2** pp)
         HWND desktopHwnd = 0;
         CComPtr<IDispatch> pDisp;
         CComVariant vEmpty;
-        if (SUCCEEDED(pSW->FindWindowSW(&vEmpty, &vEmpty, SWC_DESKTOP, (long*)&desktopHwnd, SWFO_NEEDDISPATCH, &pDisp))) {
+        if (SUCCEEDED(pSW->FindWindowSW(&vEmpty, &vEmpty, SWC_DESKTOP, (long*)&desktopHwnd, SWFO_NEEDDISPATCH, &pDisp)) && pDisp) {
             if (desktopHwnd != NULL || desktopHwnd != INVALID_HANDLE_VALUE) {
                 CComPtr<IShellBrowser> pSB;
-                if (SUCCEEDED(IUnknown_QueryService(pDisp, SID_STopLevelBrowser, IID_PPV_ARGS(&pSB)))) {
+                if (SUCCEEDED(IUnknown_QueryService(pDisp, SID_STopLevelBrowser, IID_PPV_ARGS(&pSB))) && pSB) {
                     CComPtr<IShellView> pSV;
-                    if (SUCCEEDED(pSB->QueryActiveShellView(&pSV))) {
+                    if (SUCCEEDED(pSB->QueryActiveShellView(&pSV)) && pSV) {
                         CComPtr<IDispatch> pDispBackground;
-                        if (SUCCEEDED(pSV->GetItemObject(SVGIO_BACKGROUND, IID_PPV_ARGS(&pDispBackground)))) {
+                        if (SUCCEEDED(pSV->GetItemObject(SVGIO_BACKGROUND, IID_PPV_ARGS(&pDispBackground))) && pDispBackground) {
                             DWORD dwProcessId;
                             if (GetWindowThreadProcessId(desktopHwnd, &dwProcessId) && dwProcessId) {
                                 AllowSetForegroundWindow(dwProcessId);
@@ -202,7 +207,7 @@ static void GetShellDispatch(IShellDispatch2** pp)
                             CComPtr<IShellFolderViewDual> pSFVD;
                             if (SUCCEEDED(pDispBackground->QueryInterface(IID_PPV_ARGS(&pSFVD)))) {
                                 CComPtr<IDispatch> pDisp;
-                                if (SUCCEEDED(pSFVD->get_Application(&pDisp))) {
+                                if (SUCCEEDED(pSFVD->get_Application(&pDisp)) && pDisp) {
                                     CComPtr<IShellDispatch2> pShellDispatch2;
                                     if (SUCCEEDED(pDisp->QueryInterface(IID_PPV_ARGS(&pShellDispatch2)))) {
                                         *pp = pShellDispatch2.Detach();

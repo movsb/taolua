@@ -52,7 +52,7 @@ static void assoc(bool yes)
 
 int wmain(int argc, wchar_t* argv[])
 {
-    if(argc == 0) return 0;
+    if(argc != 2) return 0;
 
     if(argc == 2 && wcscmp(argv[1], L"--assoc") == 0) {
         assoc(true);
