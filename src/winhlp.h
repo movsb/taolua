@@ -23,6 +23,7 @@ typedef AutoCloseT<HANDLE, HandleBooler, HandleCloser> AutoHandle;
 class BoolVal
 {
 public:
+    BoolVal()       : _b(false) {}
     BoolVal(BOOL b) : _b(b) {}
     BoolVal(bool b) : _b(b) {}
 
