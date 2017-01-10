@@ -7,7 +7,7 @@
 #include <exdisp.h>
 #include <shlguid.h>
 
-BEG_LIB_NAMESPACE(windows_shell)
+namespace taolua { namespace windows_shell {
 
 DECL_OBJECT(ShellFolderItemVerbObject)
 {
@@ -16,7 +16,7 @@ public:
         : _p(p)
     { }
 
-    BEG_OBJ_API_GC(ShellFolderItemVerbObject, "windows_shell::ShellFolderItemVerbObject")
+    BEG_OBJ_API_GC(windows_shell, ShellFolderItemVerbObject)
         OBJAPI(name)
         OBJAPI(doit)
     END_OBJ_API()
@@ -24,22 +24,22 @@ public:
 protected:
     LUAAPI(name)
     {
-        DECL_THIS();
+        DECL_THIS;
         CComBSTR bstrName;
         ComRet hr = O._p->get_Name(&bstrName);
         if(hr && bstrName) {
-            S.push((wchar_t*)bstrName);
+            G.push((wchar_t*)bstrName);
         }
         else {
-            S.push(L"");
+            G.push(L"");
         }
         return 1;
     }
 
     LUAAPI(doit)
     {
-        DECL_THIS();
-        S.push(O._p->DoIt());
+        DECL_THIS;
+        G.push(O._p->DoIt());
         return 1;
     }
 
@@ -54,7 +54,7 @@ public:
         : _p(p)
     { }
 
-    BEG_OBJ_API_GC(ShellFolderItemVerbsObject, "windows_shell::ShellFolderItemVerbsObject")
+    BEG_OBJ_API_GC(windows_shell, ShellFolderItemVerbsObject)
         OBJAPI(count)
         OBJAPI(for_each)
     END_OBJ_API()
@@ -62,17 +62,17 @@ public:
 protected:
     LUAAPI(count)
     {
-        DECL_THIS();
+        DECL_THIS;
         long n = 0;
         O._p->get_Count(&n);
-        S.push(n);
+        G.push(n);
         return 1;
     }
 
     LUAAPI(for_each)
     {
-        DECL_THIS();
-        S.check_func(2);
+        DECL_THIS;
+        G.check_func(2);
         long n = 0;
         O._p->get_Count(&n);
         for(long i = 0; i < n; ++i) {
@@ -80,10 +80,10 @@ protected:
             CComPtr<FolderItemVerb> spVerb;
             ComRet hr = O._p->Item(varIndex, &spVerb);
             if(hr && spVerb) {
-                S.copy(2);
-                S.push(i);
-                S.push<ShellFolderItemVerbObject>(spVerb);
-                S.call(2);
+                G.copy(2);
+                G.push(i);
+                G.push<ShellFolderItemVerbObject>(spVerb);
+                G.call(2);
             }
         }
         return 0;
@@ -100,22 +100,49 @@ public:
         : _p(p)
     { }
 
-    BEG_OBJ_API_GC(ShellFolderItemObject, "windows_shell::ShellFolderItemObject")
+    BEG_OBJ_API_GC(windows_shell, ShellFolderItemObject)
         OBJAPI(verbs)
+        OBJAPI(size)
+        OBJAPI(path)
     END_OBJ_API()
 
 protected:
     LUAAPI(verbs)
     {
-        DECL_THIS();
+        DECL_THIS;
         CComPtr<FolderItemVerbs> spVerbs;
         ComRet hr = O._p->Verbs(&spVerbs);
         if(hr && spVerbs) {
-            S.push<ShellFolderItemVerbsObject>(spVerbs);
+            G.push<ShellFolderItemVerbsObject>(spVerbs);
             return 1;
         }
         else {
             return 0;
+        }
+    }
+
+    LUAAPI(size)
+    {
+        DECL_THIS;
+        long size_ = 0;
+        ComRet hr = O._p->get_Size(&size_);
+        G.push(hr);
+        G.push(size_);
+        return 2;
+    }
+
+    LUAAPI(path)
+    {
+        DECL_THIS;
+        CComBSTR bstrPath;
+        ComRet hr = O._p->get_Path(&bstrPath);
+        if(hr && (wchar_t*)bstrPath) {
+            G.push((wchar_t*)bstrPath);
+            return 1;
+        }
+        else {
+            G.push(L"");
+            return 1;
         }
     }
 
@@ -130,19 +157,19 @@ public:
         : _p(p)
     { }
 
-    BEG_OBJ_API_GC(ShellFolderObject, "windows_shell::ShellFolderObject")
+    BEG_OBJ_API_GC(windows_shell, ShellFolderObject)
         OBJAPI(parse_name)
     END_OBJ_API()
 
 protected:
     LUAAPI(parse_name)
     {
-        DECL_THIS();
-        CComBSTR bstrName(S.check_str(2).c_str());
+        DECL_THIS;
+        CComBSTR bstrName(G.check_str(2).c_str());
         CComPtr<FolderItem> spItem;
         ComRet hr = O._p->ParseName(bstrName, &spItem);
         if(hr && spItem) {
-            S.push<ShellFolderItemObject>(spItem);
+            G.push<ShellFolderItemObject>(spItem);
             return 1;
         }
         else {
@@ -161,19 +188,19 @@ public:
         : _p(p)
     {}
 
-    BEG_OBJ_API_GC(ShellDispatchObject, "windows_shell::ShellDispatchObject")
+    BEG_OBJ_API_GC(windows_shell, ShellDispatchObject)
         OBJAPI2("namespace", namespace_)
     END_OBJ_API()
 
 protected:
     LUAAPI(namespace_)
     {
-        DECL_THIS();
-        CComVariant varDir(S.check_str(2).c_str());
+        DECL_THIS;
+        CComVariant varDir(G.check_str(2).c_str());
         CComPtr<Folder> spFolder;
         ComRet hr = O._p->NameSpace(varDir, &spFolder);
         if(hr && spFolder) {
-            S.push<ShellFolderObject>(spFolder);
+            G.push<ShellFolderObject>(spFolder);
             return 1;
         }
         else {
@@ -245,23 +272,23 @@ static ComRet CreateShortcut(LPCWSTR lnk, LPCWSTR src, LPCWSTR args, LPCWSTR ico
 
 LUAAPI(create_shortcut)
 {
-    DECL_WRAP();
-    MyStr lnk = S.check_str(1);
-    MyStr src = S.check_str(2);
-    MyStr arg = S.opt_str(3);
-    MyStr ico = S.opt_str(4);
+    DECL_WRAP;
+    MyStr lnk = G.check_str(1);
+    MyStr src = G.check_str(2);
+    MyStr arg = G.opt_str(3);
+    MyStr ico = G.opt_str(4);
     ComRet hr = CreateShortcut(lnk, src, arg, ico);
-    S.push(hr);
+    G.push(hr);
     return 1;
 }
 
 LUAAPI(shell_dispatch)
 {
-    DECL_WRAP();
+    DECL_WRAP;
     CComPtr<IShellDispatch2> spShellDispatch;
     GetShellDispatch(&spShellDispatch);
     if(spShellDispatch) {
-        S.push<ShellDispatchObject>(spShellDispatch);
+        G.push<ShellDispatchObject>(spShellDispatch);
         return 1;
     }
     else {

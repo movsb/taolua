@@ -6,19 +6,9 @@ local wsh = taolua.windows_shell
 local shell_dispatch = wsh.shell_dispatch()
 local folder = shell_dispatch:namespace([[C:\Users\tao\Desktop]])
 if folder then
-    local item = folder:parse_name('channel.exe')
+    local item = folder:parse_name('ThunderSetup')
     if item then
-        local verbs = item:verbs()
-        if verbs then
-            local count = verbs:count()
-            print('count: ', count)
-            verbs:for_each(function(i, verb)
-                print(i, verb:name())
-                if verb:name() == 'P&roperties' then
-                    print(verb:doit())
-                end
-            end)
-        end
+        print(item, item:path())
     end
 end
 

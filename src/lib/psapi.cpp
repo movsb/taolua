@@ -2,8 +2,25 @@
 #include "psapi.h"
 
 #include <TlHelp32.h>
+#include <psapi.h>
 
-BEG_LIB_NAMESPACE(psapi)
+// BEG_LIB_NAMESPACE(psapi)
+namespace taolua { namespace psapi {
+
+static std::wstring _get_path(DWORD pid)
+{
+    std::wstring path;
+    AutoHandle handle = ::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
+    if(handle) {
+        wchar_t buf[MAX_PATH];
+        if(::GetModuleFileNameEx(handle, nullptr, buf, _countof(buf))) {
+            path = buf;
+        }
+    }
+    return std::move(path);
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 DECL_OBJECT(ProcessObject)
 {
@@ -11,36 +28,38 @@ public:
     ProcessObject(DWORD pid)
         : _pid(pid) { }
 
-    BEG_OBJ_API(ProcessObject, "psapi::ProcessObject")
+    BEG_OBJ_API(psapi, ProcessObject)
         OBJAPI(__tostring)
         OBJAPI(threads)
         OBJAPI(modules)
         OBJAPI(term)
+        OBJAPI(path)
+        OBJAPI(name)
     END_OBJ_API()
 
 public:
     LUAAPI(__tostring)
     {
-        DECL_THIS();
-        S.push_fmt(L"%s { PID: %d }", __namew__(), O._pid);
+        DECL_THIS;
+        G.push_fmt(L"%s { PID: %d }", __namew__(), O._pid);
         return 1;
     }
 
     LUAAPI(threads)
     {
-        DECL_THIS();
+        DECL_THIS;
         bool succ = false;
         AutoHandle hSnapshot = ::CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0 /* O._pid ignored */);
         if(hSnapshot) {
             THREADENTRY32 te = {sizeof(te)};
             if(::Thread32First(hSnapshot, &te)) {
-                S.newtable();
+                G.newtable();
                 do {
                     if(te.th32OwnerProcessID == O._pid) {
-                        S.push(te.th32ThreadID);
-                        S.newtable();
-                        S.setfield("pid", te.th32OwnerProcessID);
-                        S.rawset(-3);
+                        G.push(te.th32ThreadID);
+                        G.newtable();
+                        G.setfield("pid", te.th32OwnerProcessID);
+                        G.rawset(-3);
                     }
                 } while(::Thread32Next(hSnapshot, &te));
                 succ = true;
@@ -52,23 +71,23 @@ public:
 
     LUAAPI(modules)
     {
-        DECL_THIS();
+        DECL_THIS;
         bool succ = false;
         AutoHandle hSnapshot = ::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, O._pid);
         if(hSnapshot) {
             MODULEENTRY32 me = {sizeof(me)};
             if(::Module32First(hSnapshot, &me)) {
                 int i = 1;
-                S.newtable();
+                G.newtable();
                 do {
-                    S.newtable();
-                    S.setfield("pid",   me.th32ProcessID);
-                    S.setfield("base",  (lua_Integer)me.modBaseAddr);
-                    S.setfield("size",  me.modBaseSize);
-                    S.setfield("handle", (lua_Integer)me.hModule);
-                    S.setfield("name",  me.szModule);
-                    S.setfield("path",  me.szExePath);
-                    S.rawseti(-2, i++);
+                    G.newtable();
+                    G.setfield("pid",   me.th32ProcessID);
+                    G.setfield("base",  (lua_Integer)me.modBaseAddr);
+                    G.setfield("size",  me.modBaseSize);
+                    G.setfield("handle", (lua_Integer)me.hModule);
+                    G.setfield("name",  me.szModule);
+                    G.setfield("path",  me.szExePath);
+                    G.rawseti(-2, i++);
                 } while(::Module32Next(hSnapshot, &me));
                 succ = true;
             }
@@ -79,55 +98,92 @@ public:
 
     LUAAPI(term)
     {
-        DECL_THIS();
+        DECL_THIS;
         AutoHandle handle = ::OpenProcess(PROCESS_TERMINATE, FALSE, O._pid);
         if(handle) {
-            auto code = S.opt_integer<DWORD>(2, -1);
+            auto code = G.opt_integer<DWORD>(2, -1);
             BoolVal ok = ::TerminateProcess(handle, code);
-            S.push(ok);
+            G.push(ok);
         }
         else {
             SAVE_LAST_ERROR;
-            S.push(false);
+            G.push(false);
         }
+        return 1;
+    }
+
+    LUAAPI(path)
+    {
+        DECL_THIS;
+        if(O._path.empty()) {
+            O._path = _get_path(O._pid);
+            if(O._path.empty()) {
+                SAVE_LAST_ERROR;
+            }
+        }
+        G.push(O._path);
+        return 1;
+    }
+
+    LUAAPI(name)
+    {
+        DECL_THIS;
+        auto& _path = O._path;
+        if(_path.empty()) {
+            _path = _get_path(O._pid);
+            if(_path.empty()) {
+                SAVE_LAST_ERROR;
+            }
+        }
+
+        bool found = false;
+        if(!_path.empty()) {
+            auto ps = _path.find_last_of(L"/\\");
+            if(ps != _path.npos) {
+                G.push(_path.substr(ps + 1));
+                found = true;
+            }
+        }
+        if(!found) G.push(L"");
         return 1;
     }
 
 protected:
     DWORD _pid;
+    std::wstring _path;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 LUAAPI(topsobj)
 {
-    DECL_WRAP();
-    auto pid = S.check_int(1);
-    S.push<ProcessObject>(pid);
+    DECL_WRAP;
+    auto pid = G.check_int(1);
+    G.push<ProcessObject>(pid);
     return 1;
 }
 
 LUAAPI(processes)
 {
-    DECL_WRAP();
+    DECL_WRAP;
     bool succ = false;
-    bool has_special = S.opt_bool(1, false);
+    bool has_special = G.opt_bool(1, false);
     AutoHandle hSnapshot = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if(hSnapshot) {
         PROCESSENTRY32 pe = {sizeof(pe)};
         if(::Process32First(hSnapshot, &pe)) {
-            S.newtable();
+            G.newtable();
             do {
                 if(!has_special && pe.th32ProcessID == 0)
                     continue;
 
-                S.push(pe.th32ProcessID);
-                S.newtable(0, 4);
-                S.setfield("pid",           pe.th32ProcessID);
-                S.setfield("ppid",          pe.th32ParentProcessID);
-                S.setfield("name",          pe.szExeFile);
-                S.setfield("thread_count",  pe.cntThreads);
-                S.rawset(-3);
+                G.push(pe.th32ProcessID);
+                G.newtable(0, 4);
+                G.setfield("pid",           pe.th32ProcessID);
+                G.setfield("ppid",          pe.th32ParentProcessID);
+                G.setfield("name",          pe.szExeFile);
+                G.setfield("thread_count",  pe.cntThreads);
+                G.rawset(-3);
             } while(::Process32Next(hSnapshot, &pe));
             succ = true;
         }

@@ -7,8 +7,8 @@ namespace taolua {
 
 #define MODULE(name)                lua.newlib(#name, taolua::name::__methods__, taolua::name::__init__)
 
-#define DECL_WRAP()                 LuaWrapper S(L)
-#define DECL_MODULE_MAGIC(name)     void name(LuaWrapper S)
+#define DECL_WRAP                   LuaWrapper G(L)
+#define DECL_MODULE_MAGIC(name)     void name(LuaWrapper G)
 #define DECL_MODULE                 extern const luaL_Reg __methods__[]; DECL_MODULE_MAGIC(__init__)
 
 #define LUAAPI(name)                static int name(lua_State* L)
@@ -21,26 +21,25 @@ namespace taolua {
 #define END_LIB_API()               {nullptr, nullptr} };
 
 #define DECL_OBJECT(T)              class T
-#define BEG_OBJ_API(T, name_) \
+#define BEG_OBJ_API(N, T) \
                                     static T* __this__(lua_State* L) {return reinterpret_cast<T*>(luaL_checkudata(L, 1, __name__()));}\
-                                    static const char* const __name__() { return "" ## name_; }\
-                                    static const wchar_t* const __namew__() { return L"" ## name_; }\
+                                    static const char* const __name__() { return "" #N "::" #T; }\
+                                    static const wchar_t* const __namew__() { return L"" #N  L"::" #T; }\
                                     static const luaL_Reg* const __apis__() { static luaL_Reg s_apis[] = {
 #define OBJAPI                      STRINTPAIR
 #define OBJAPI2                     STRINTPAIR2
-#define DECL_THIS();                LuaWrapper S = L; auto& O = *__this__(L)
-#define BEG_OBJ_API_GC(T, name_)    LUAAPI(__gc)\
+#define DECL_THIS                   LuaWrapper G = L; auto& O = *__this__(L)
+#define BEG_OBJ_API_GC(N, T)        LUAAPI(__gc)\
                                     {\
-                                        DECL_THIS();\
+                                        DECL_THIS;\
                                         O.~T();\
                                         return 0;\
                                     }\
-                                    BEG_OBJ_API(T, name_)\
+                                    BEG_OBJ_API(N, T)\
                                     OBJAPI(__gc)
 #define END_OBJ_API()               {nullptr, nullptr} }; return s_apis; }
 
-#define FREE_THIS(T)                O.~T()
-
+// VAX 和 IntelliSense 目前对命名空间这个宏支持不了，暂时不用
 #define BEG_LIB_NAMESPACE(name)     namespace taolua { namespace name {
 #define END_LIB_NAMESPACE()         }}
 
@@ -139,6 +138,8 @@ public:
     void            check_func(int i)                       { if(!isfunc(i)) { argerr(i, "function expected"); } }
 
     // push functions (C -> stack)
+    template<typename T>
+    void push_as_int(const T& t)                            { return push((lua_Integer)t); }
     void push()                                             { return lua_pushnil(_L); }
     void push(int i)                                        { return push(lua_Integer(i)); }
     void push(lua_Integer i)                                { return lua_pushinteger(_L, i); }

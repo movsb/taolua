@@ -57,9 +57,9 @@ protected:
 };
 
 #define SAVE_LAST_ERROR \
-    if(S.getglobal("winapi") == LUA_TTABLE) {\
-        S.setfield("_errno", ::GetLastError());\
-        S.pop();\
+    if(G.getglobal("winapi") == LUA_TTABLE) {\
+        G.setfield("_errno", ::GetLastError());\
+        G.pop();\
     }
 
 class ComRet

@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "dialog.h"
 
-BEG_LIB_NAMESPACE(dialog)
+// BEG_LIB_NAMESPACE(dialog)
+namespace taolua { namespace dialog {
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -13,32 +14,32 @@ BEG_LIB_NAMESPACE(dialog)
 */
 LUAAPI(msgbox)
 {
-    DECL_WRAP();
+    DECL_WRAP;
     std::wstring msg, title;
     UINT icon = MB_OK;
 
-    msg = S.check_str(1);
+    msg = G.check_str(1);
 
-    int n = S.gettop();
+    int n = G.gettop();
     if(n == 1) {
 
     }
     else if(n == 2) {
-        if(S.isinteger(2))
-            icon = S.tointeger<UINT>(2);
-        else if(S.isstring(2))
-            title = S.check_str(2);
+        if(G.isinteger(2))
+            icon = G.tointeger<UINT>(2);
+        else if(G.isstring(2))
+            title = G.check_str(2);
         else
-            S.argerr(2, "number or string expected");
+            G.argerr(2, "number or string expected");
     }
     else if(n == 3) {
-        title = S.check_str(2);
-        icon = S.check_integer<UINT>(3);
+        title = G.check_str(2);
+        icon = G.check_integer<UINT>(3);
     }
 
     int ret = ::MessageBox(::GetActiveWindow(), msg.c_str(), title.c_str(), icon);
 
-    S.push(ret);
+    G.push(ret);
 
     return 1;
 }
@@ -74,25 +75,25 @@ static const wchar_t* _get_opensave_file(bool open, DWORD flags, LuaWrapper G)
 
 LUAAPI(get_open_file)
 {
-    DECL_WRAP();
+    DECL_WRAP;
     DWORD flags = OFN_ENABLESIZING | OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST;
-    auto path = _get_opensave_file(true, flags, S);
-    S.push(path);
+    auto path = _get_opensave_file(true, flags, G);
+    G.push(path);
     return 1;
 }
 
 LUAAPI(get_save_file)
 {
-    DECL_WRAP();
+    DECL_WRAP;
     DWORD flags = OFN_ENABLESIZING | OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
-    auto path = _get_opensave_file(false, flags, S);
-    S.push(path);
+    auto path = _get_opensave_file(false, flags, G);
+    G.push(path);
     return 1;
 }
 
 LUAAPI(choose_color)
 {
-    DECL_WRAP();
+    DECL_WRAP;
     static COLORREF last_colors[16];
     CHOOSECOLOR cc = {sizeof(cc)};
 
@@ -100,21 +101,21 @@ LUAAPI(choose_color)
     cc.Flags = CC_FULLOPEN | CC_RGBINIT;
     cc.lpCustColors = last_colors;
 
-    int R  = S.opt_int(1, 0x00);
-    int G_ = S.opt_int(2, 0x00);
-    int B  = S.opt_int(3, 0x00);
+    int R  = G.opt_int(1, 0x00);
+    int G_ = G.opt_int(2, 0x00);
+    int B  = G.opt_int(3, 0x00);
     COLORREF color = RGB(R, G_, B);
     cc.rgbResult = color;
 
     BoolVal ok = ::ChooseColor(&cc);
-    S.push(ok && cc.rgbResult != color);
+    G.push(ok && cc.rgbResult != color);
 
     if(ok) color = cc.rgbResult;
 
-    S.push(color);
-    S.push(GetRValue(color));
-    S.push(GetGValue(color));
-    S.push(GetBValue(color));
+    G.push(color);
+    G.push(GetRValue(color));
+    G.push(GetGValue(color));
+    G.push(GetBValue(color));
 
     return 5;
 }

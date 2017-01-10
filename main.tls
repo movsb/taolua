@@ -1,0 +1,20 @@
+
+
+local wm = taolua.window_manage
+local ps = taolua.psapi
+
+wm.enum_windows(function(hwnd)
+    local wndobj = wm.towinobj(hwnd)
+    if wndobj then
+        local width, height = wndobj:size()
+        print(string.format('[%4d*%-4d] [%5d] [%5s] [%32s] %50s [%s]',
+            width, height,
+            wndobj:pid(),
+            wndobj:visible(),
+            wndobj:title(),
+            wndobj:class(),
+            ps.topsobj(wndobj:pid()):name()
+        ))
+    end
+end)
+
