@@ -63,14 +63,14 @@ int TaoLua::exec(const std::wstring& file)
 
 int TaoLua::lua_exec(lua_State* L)
 {
-    DECL_WRAP;
-    G.getglobal("taolua");
-    G.getfield("__this__");
-    auto __this = G.check_udata<TaoLua*>(-1);
-    G.pop();
-    auto file = G.check_str(1);
+    DECL_WRAP();
+    S.getglobal("taolua");
+    S.getfield("__this__");
+    auto __this = S.check_udata<TaoLua*>(-1);
+    S.pop();
+    auto file = S.check_str(1);
     auto r = __this->exec(file);
-    G.push(r);
+    S.push(r);
     return 1;
 }
 

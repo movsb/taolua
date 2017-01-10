@@ -7,7 +7,8 @@ namespace taolua {
 
 #define MODULE(name)                lua.newlib(#name, taolua::name::__methods__, taolua::name::__init__)
 
-#define DECL_MODULE_MAGIC(name)     void name(LuaWrapper G)
+#define DECL_WRAP()                 LuaWrapper S(L)
+#define DECL_MODULE_MAGIC(name)     void name(LuaWrapper S)
 #define DECL_MODULE                 extern const luaL_Reg __methods__[]; DECL_MODULE_MAGIC(__init__)
 
 #define LUAAPI(name)                static int name(lua_State* L)
@@ -27,10 +28,18 @@ namespace taolua {
                                     static const luaL_Reg* const __apis__() { static luaL_Reg s_apis[] = {
 #define OBJAPI                      STRINTPAIR
 #define OBJAPI2                     STRINTPAIR2
+#define DECL_THIS();                LuaWrapper S = L; auto& O = *__this__(L)
+#define BEG_OBJ_API_GC(T, name_)    LUAAPI(__gc)\
+                                    {\
+                                        DECL_THIS();\
+                                        O.~T();\
+                                        return 0;\
+                                    }\
+                                    BEG_OBJ_API(T, name_)\
+                                    OBJAPI(__gc)
 #define END_OBJ_API()               {nullptr, nullptr} }; return s_apis; }
 
-#define DECL_WRAP                   LuaWrapper G(L)
-#define DECL_THIS                   DECL_WRAP; auto& O = *__this__(L)
+#define FREE_THIS(T)                O.~T()
 
 #define BEG_LIB_NAMESPACE(name)     namespace taolua { namespace name {
 #define END_LIB_NAMESPACE()         }}
@@ -84,7 +93,7 @@ public:
     bool    isnumber(int i)                                 { return !!lua_isnumber(_L, i); }
     bool    isstring(int i)                                 { return !!lua_isstring(_L, i); }
     bool    iscfunc(int i)                                  { return !!lua_iscfunction(_L, i); }
-    bool    isfunc(int i)                                   { return !!lua_iscfunction(_L, i); }
+    bool    isfunc(int i)                                   { return !!lua_isfunction(_L, i); }
     bool    isinteger(int i)                                { return !!lua_isinteger(_L, i); }
     bool    isuserdata(int i)                               { return !!lua_isuserdata(_L, i); }
     bool    islightuserdata(int i)                          { return !!lua_islightuserdata(_L, i); }
@@ -126,6 +135,8 @@ public:
     T               check_udata(int i)                      { if(islightuserdata(i)) return (T)touserdata(i); argerr(i, (typeid(T).name() + std::string(" expected")).c_str()); return T(); }
     template<typename T>
     T&              check_object(int i)                     { return *(T*)luaL_checkudata(_L, i, T::__name__()); }
+
+    void            check_func(int i)                       { if(!isfunc(i)) { argerr(i, "function expected"); } }
 
     // push functions (C -> stack)
     void push()                                             { return lua_pushnil(_L); }
@@ -236,7 +247,7 @@ public:
     void close();
     void main();
 
-    void newlib(const char* name, const luaL_Reg fns[], void(*init)(LuaWrapper G));
+    void newlib(const char* name, const luaL_Reg fns[], void(*init)(LuaWrapper S));
 
     // load
     int exec(const std::wstring& file);

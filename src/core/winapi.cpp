@@ -5,36 +5,36 @@ BEG_LIB_NAMESPACE(winapi)
 
 LUAAPI(errno_)
 {
-    DECL_WRAP;
-    G.getglobal("winapi");
-    G.getfield("_errno");
-    G.remove(-2);
+    DECL_WRAP();
+    S.getglobal("winapi");
+    S.getfield("_errno");
+    S.remove(-2);
     return 1;
 }
 
 LUAAPI(error)
 {
-    DECL_WRAP;
+    DECL_WRAP();
     wchar_t* buffer;
     DWORD code;
-    if(G.isinteger(1)) {
-        code = G.check_integer<DWORD>(1);
+    if(S.isinteger(1)) {
+        code = S.check_integer<DWORD>(1);
     }
     else {
-        G.getglobal("winapi");
-        G.getfield("_errno");
-        code = G.check_integer<DWORD>(-1);
-        G.pop(2);
+        S.getglobal("winapi");
+        S.getfield("_errno");
+        code = S.check_integer<DWORD>(-1);
+        S.pop(2);
     }
 
 	if (::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER,
 		NULL, code, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), (LPWSTR)&buffer, 1, NULL))
 	{
-        G.push_fmt(L"(%d) %s", code, buffer);
+        S.push_fmt(L"(%d) %s", code, buffer);
 		::LocalFree(buffer);
 	}
     else {
-        G.push(L"(winapi error: FormatMessage)");
+        S.push(L"(winapi error: FormatMessage)");
     }
 
     return 1;
@@ -47,9 +47,9 @@ END_LIB_API()
 
 DECL_MODULE_MAGIC(__init__)
 {
-    G.copy(-1);
-    G.setglobal("winapi");
-    G.setfield("_errno", 0);
+    S.copy(-1);
+    S.setglobal("winapi");
+    S.setfield("_errno", 0);
 }
 
 //////////////////////////////////////////////////////////////////////////

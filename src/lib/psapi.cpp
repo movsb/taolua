@@ -21,26 +21,26 @@ public:
 public:
     LUAAPI(__tostring)
     {
-        DECL_THIS;
-        G.push_fmt(L"%s { PID: %d }", __namew__(), O._pid);
+        DECL_THIS();
+        S.push_fmt(L"%s { PID: %d }", __namew__(), O._pid);
         return 1;
     }
 
     LUAAPI(threads)
     {
-        DECL_THIS;
+        DECL_THIS();
         bool succ = false;
         AutoHandle hSnapshot = ::CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0 /* O._pid ignored */);
         if(hSnapshot) {
             THREADENTRY32 te = {sizeof(te)};
             if(::Thread32First(hSnapshot, &te)) {
-                G.newtable();
+                S.newtable();
                 do {
                     if(te.th32OwnerProcessID == O._pid) {
-                        G.push(te.th32ThreadID);
-                        G.newtable();
-                        G.setfield("pid", te.th32OwnerProcessID);
-                        G.rawset(-3);
+                        S.push(te.th32ThreadID);
+                        S.newtable();
+                        S.setfield("pid", te.th32OwnerProcessID);
+                        S.rawset(-3);
                     }
                 } while(::Thread32Next(hSnapshot, &te));
                 succ = true;
@@ -52,23 +52,23 @@ public:
 
     LUAAPI(modules)
     {
-        DECL_THIS;
+        DECL_THIS();
         bool succ = false;
         AutoHandle hSnapshot = ::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, O._pid);
         if(hSnapshot) {
             MODULEENTRY32 me = {sizeof(me)};
             if(::Module32First(hSnapshot, &me)) {
                 int i = 1;
-                G.newtable();
+                S.newtable();
                 do {
-                    G.newtable();
-                    G.setfield("pid",   me.th32ProcessID);
-                    G.setfield("base",  (lua_Integer)me.modBaseAddr);
-                    G.setfield("size",  me.modBaseSize);
-                    G.setfield("handle", (lua_Integer)me.hModule);
-                    G.setfield("name",  me.szModule);
-                    G.setfield("path",  me.szExePath);
-                    G.rawseti(-2, i++);
+                    S.newtable();
+                    S.setfield("pid",   me.th32ProcessID);
+                    S.setfield("base",  (lua_Integer)me.modBaseAddr);
+                    S.setfield("size",  me.modBaseSize);
+                    S.setfield("handle", (lua_Integer)me.hModule);
+                    S.setfield("name",  me.szModule);
+                    S.setfield("path",  me.szExePath);
+                    S.rawseti(-2, i++);
                 } while(::Module32Next(hSnapshot, &me));
                 succ = true;
             }
@@ -79,16 +79,16 @@ public:
 
     LUAAPI(term)
     {
-        DECL_THIS;
+        DECL_THIS();
         AutoHandle handle = ::OpenProcess(PROCESS_TERMINATE, FALSE, O._pid);
         if(handle) {
-            auto code = G.opt_integer<DWORD>(2, -1);
+            auto code = S.opt_integer<DWORD>(2, -1);
             BoolVal ok = ::TerminateProcess(handle, code);
-            G.push(ok);
+            S.push(ok);
         }
         else {
             SAVE_LAST_ERROR;
-            G.push(false);
+            S.push(false);
         }
         return 1;
     }
@@ -101,33 +101,33 @@ protected:
 
 LUAAPI(topsobj)
 {
-    DECL_WRAP;
-    auto pid = G.check_int(1);
-    G.push<ProcessObject>(pid);
+    DECL_WRAP();
+    auto pid = S.check_int(1);
+    S.push<ProcessObject>(pid);
     return 1;
 }
 
 LUAAPI(processes)
 {
-    DECL_WRAP;
+    DECL_WRAP();
     bool succ = false;
-    bool has_special = G.opt_bool(1, false);
+    bool has_special = S.opt_bool(1, false);
     AutoHandle hSnapshot = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if(hSnapshot) {
         PROCESSENTRY32 pe = {sizeof(pe)};
         if(::Process32First(hSnapshot, &pe)) {
-            G.newtable();
+            S.newtable();
             do {
                 if(!has_special && pe.th32ProcessID == 0)
                     continue;
 
-                G.push(pe.th32ProcessID);
-                G.newtable(0, 4);
-                G.setfield("pid",           pe.th32ProcessID);
-                G.setfield("ppid",          pe.th32ParentProcessID);
-                G.setfield("name",          pe.szExeFile);
-                G.setfield("thread_count",  pe.cntThreads);
-                G.rawset(-3);
+                S.push(pe.th32ProcessID);
+                S.newtable(0, 4);
+                S.setfield("pid",           pe.th32ProcessID);
+                S.setfield("ppid",          pe.th32ParentProcessID);
+                S.setfield("name",          pe.szExeFile);
+                S.setfield("thread_count",  pe.cntThreads);
+                S.rawset(-3);
             } while(::Process32Next(hSnapshot, &pe));
             succ = true;
         }
