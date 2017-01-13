@@ -9,6 +9,7 @@
 #include "lib/psapi.h"
 #include "lib/dialog.h"
 #include "lib/windows_shell.h"
+#include "lib/console.h"
 
 #include <shlobj.h>
 
@@ -73,6 +74,7 @@ int wmain(int argc, wchar_t* argv[])
     MODULE(psapi);
     MODULE(dialog);
     MODULE(windows_shell);
+    MODULE(console);
 
     lua.exec(argv[1]);
 

@@ -31,6 +31,7 @@ public:
         OBJAPI(close)
         OBJAPI2("class", class_name)
         OBJAPI(title)
+        OBJAPI2("text", title)
         OBJAPI(sendmsg)
         OBJAPI(postmsg)
         OBJAPI(term)
@@ -40,6 +41,7 @@ public:
         OBJAPI(visible)
         OBJAPI(size)
         OBJAPI(pos)
+        OBJAPI(band)
     END_OBJ_API()
 
     LUAAPI(__tostring)
@@ -231,6 +233,23 @@ public:
         G.push(rc.right);
         G.push(rc.bottom);
         return 4;
+    }
+
+    LUAAPI(band)
+    {
+        DECL_THIS;
+        typedef BOOL (WINAPI *GetWindowBandT)(HWND hWnd, PDWORD pdwBand);
+        static auto fn = (GetWindowBandT)::GetProcAddress(::GetModuleHandle(L"user32.dll"), "GetWindowBand");
+        if(fn) {
+            DWORD band = 0;
+            BoolVal br = fn(O._hwnd, &band);
+            G.push(br ? band : 0);
+            return 1;
+        }
+        else {
+            G.push(0);
+            return 1;
+        }
     }
 
 protected:

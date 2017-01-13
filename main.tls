@@ -1,20 +1,44 @@
+local this = taolua.console.this()
+this:interactive(true, function(ty, ...)
+    local function focus_event(focus)
+        print('Focus:', focus)
+    end
 
+    local function mouse_event(e)
+        print('Mouse: ')
+        for k, v in pairs(e) do
+            print(string.format('  %10s: ', k), v)
+        end
+    end
 
-local wm = taolua.window_manage
-local ps = taolua.psapi
+    local function keyboard_event(e)
+        print('Keyboard: ')
+        for k, v in pairs(e) do
+            print(string.format('  %10s: ', k), v)
+        end
+    end
 
-wm.enum_windows(function(hwnd)
-    local wndobj = wm.towinobj(hwnd)
-    if wndobj then
-        local width, height = wndobj:size()
-        print(string.format('[%4d*%-4d] [%5d] [%5s] [%32s] %50s [%s]',
-            width, height,
-            wndobj:pid(),
-            wndobj:visible(),
-            wndobj:title(),
-            wndobj:class(),
-            ps.topsobj(wndobj:pid()):name()
-        ))
+    local function menu_event(id)
+        print('Menu: ', id)
+    end
+
+    local function size_event(cx, cy)
+        print(string.format('Size: %d,%d', cx, cy))
+    end
+
+    local map = {
+        [0] = focus_event,
+        [1] = mouse_event,
+        [2] = keyboard_event,
+        [3] = menu_event,
+        [4] = size_event,
+    }
+
+    local fn = map[ty]
+    if fn then
+        fn(...)
+    else
+        print('bad event type: ', ty)
     end
 end)
 

@@ -142,6 +142,7 @@ public:
     void push_as_int(const T& t)                            { return push((lua_Integer)t); }
     void push()                                             { return lua_pushnil(_L); }
     void push(int i)                                        { return push(lua_Integer(i)); }
+    void push(unsigned int i)                               { return push(lua_Integer(i)); }
     void push(lua_Integer i)                                { return lua_pushinteger(_L, i); }
     void push(lua_Number n)                                 { return lua_pushnumber(_L, n); }
     void push(const char* s)                                { return (void)lua_pushstring(_L, s); }
@@ -182,6 +183,9 @@ public:
 
             return p;
         }
+
+    template<typename T, typename = decltype(&T::to_table), typename _T_fake = T>
+    void push(const T& v) { v.to_table(*this); }
 
     template<typename T, typename = decltype(&T::to_lua)>
     void push(const T& v) { push(v.to_lua()); }

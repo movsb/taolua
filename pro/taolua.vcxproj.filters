@@ -159,6 +159,9 @@
     <ClCompile Include="..\src\stdafx.cpp">
       <Filter>Source Files\main</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\lib\console.cpp">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rd\lua\lapi.h">
@@ -268,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="..\src\winhlp.h">
       <Filter>Source Files\main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\lib\console.h">
+      <Filter>Source Files\lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
