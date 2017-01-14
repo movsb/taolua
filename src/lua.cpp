@@ -92,28 +92,4 @@ void TaoLua::_init_global()
     setglobal("sleep");
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-void LuaWrapper::newtable(const std::vector<std::wstring>& arr)
-{
-    newtable((int)arr.size());
-
-    int i = 1;
-
-    for(const auto& a : arr) {
-        push(a);
-        rawseti(-2, i++);
-    }
-}
-
-void LuaWrapper::newtable(const CStr2Int& map)
-{
-    newtable(0, (int)map.size());
-
-    for(const auto& m : map) {
-        push(m.second);
-        setfield(-2, m.first);
-    }
-}
-
 }

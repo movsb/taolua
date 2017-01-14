@@ -352,7 +352,7 @@ DECL_MODULE_MAGIC(__init__)
     };
 #undef _
 
-    G.newtable(winmsg);
+    G.push(winmsg);
     G.setfield(-2, "winmsg");
 }
 

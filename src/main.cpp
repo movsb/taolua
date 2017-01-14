@@ -10,6 +10,7 @@
 #include "lib/dialog.h"
 #include "lib/windows_shell.h"
 #include "lib/console.h"
+#include "lib/network.h"
 
 #include <shlobj.h>
 
@@ -75,6 +76,7 @@ int wmain(int argc, wchar_t* argv[])
     MODULE(dialog);
     MODULE(windows_shell);
     MODULE(console);
+    MODULE(network);
 
     lua.exec(argv[1]);
 

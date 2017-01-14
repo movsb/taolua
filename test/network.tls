@@ -1,0 +1,19 @@
+local net = taolua.network
+--local br, res = net.urlopen('http://blog.twofei.com')
+local br, res = net.urlopen('http://www.example.com')
+if br then
+    local function print_table(prefix, t)
+        for k, v in pairs(t) do
+            if type(v) == 'table' then
+                print_table(prefix, v)
+            else
+                print(string.format('%-30s : %s', prefix .. k, v))
+            end
+        end
+    end
+
+    print_table(' ', res)
+
+    print(#res.body)
+end
+

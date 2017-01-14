@@ -162,6 +162,9 @@
     <ClCompile Include="..\src\lib\console.cpp">
       <Filter>Source Files\lib</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\lib\network.cpp">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rd\lua\lapi.h">
@@ -273,6 +276,9 @@
       <Filter>Source Files\main</Filter>
     </ClInclude>
     <ClInclude Include="..\src\lib\console.h">
+      <Filter>Source Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\lib\network.h">
       <Filter>Source Files\lib</Filter>
     </ClInclude>
   </ItemGroup>

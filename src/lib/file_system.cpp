@@ -71,9 +71,9 @@ LUAAPI(get_folder_files)
 
     GetFolderFiles(path, L"", sub, &files, merge ? &files : &folders);
 
-    G.newtable(files);
+    G.push(files);
     if(!merge)
-        G.newtable(folders);
+        G.push(folders);
 
     return merge ? 1 : 2;
 }

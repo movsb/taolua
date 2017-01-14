@@ -61,7 +61,9 @@ struct MyStrT
 typedef MyStrT<std::string, char>      MyStrRaw;
 typedef MyStrT<std::wstring, wchar_t>  MyStr;
 
-typedef std::unordered_map<const char*, int> CStr2Int;
+typedef std::map<const char*, int> CStr2Int;
+typedef std::map<std::string, std::string> Str2Str;
+typedef std::map<std::wstring, std::wstring> WStr2WStr;
 
 class LuaWrapper
 {
@@ -184,11 +186,31 @@ public:
             return p;
         }
 
-    template<typename T, typename = decltype(&T::to_table), typename _T_fake = T>
-    void push(const T& v) { v.to_table(*this); }
-
     template<typename T, typename = decltype(&T::to_lua)>
     void push(const T& v) { push(v.to_lua()); }
+
+    template<typename T, typename = decltype(&T::to_table), typename = T>
+    void push(const T& v) { v.to_table(*this); }
+
+    template<typename T>
+        void    push(const std::vector<T>& arr)
+        {
+            int i = 1;
+            newtable((int)arr.size());
+            for(const auto& a : arr) {
+                push(a);
+                rawseti(-2, i++);
+            }
+        }
+
+    template<typename K, typename V>
+        void    push(const std::map<K, V>& map)
+        {
+            newtable(0, (int)map.size());
+            for(const auto& m : map) {
+                setfield(m.first, m.second);
+            }
+        }
 
     void push(DWORD dw)                                     { return push(lua_Integer(dw)); }
 
@@ -203,8 +225,6 @@ public:
     int     rawgetp(int t, const void* p)                   { return lua_rawgetp(_L, t, p); }
 
     void    newtable(int na = 0, int nk = 0)                { return lua_createtable(_L, na, nk); }
-    void    newtable(const std::vector<std::wstring>& arr);
-    void    newtable(const CStr2Int& map);
     int     newmetatable(const char* name)                  { return luaL_newmetatable(_L, name); }
     void*   newud(size_t size)                              { return lua_newuserdata(_L, size); }
     int     getmetatable(int o)                             { return lua_getmetatable(_L, o); }
@@ -216,6 +236,10 @@ public:
     void    setfield(int t, const char* k)                  { return lua_setfield(_L, t, k); }
     template<typename T>
         void    setfield(const char* k, const T& t)         { push(t); return setfield(-2, k); }
+    template<typename T>
+        void    setfield(const std::string& k, const T& t)  { push(t); return setfield(-2, k.c_str()); }
+    template<typename T>
+        void    setfield(const std::wstring& k, const T& t) { push(t); return setfield(-2, to_utf8(k).c_str()); }
     void    seti(int t, lua_Integer n)                      { return lua_seti(_L, t, n); }
     void    rawset(int i)                                   { return lua_rawset(_L, i); }
     void    rawseti(int t, lua_Integer n)                   { return lua_rawseti(_L, t, n); }

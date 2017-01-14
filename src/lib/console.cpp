@@ -31,11 +31,11 @@ protected:
             {
                 const auto& me = ir.Event.MouseEvent;
                 G.newtable(0, 5);
-                G.setfield("x",     me.dwMousePosition.X);
-                G.setfield("y",     me.dwMousePosition.Y);
-                G.setfield("btn",   me.dwButtonState);
-                G.setfield("ctrl",  me.dwControlKeyState);
-                G.setfield("flags", me.dwEventFlags);
+                G.setfield("x",         me.dwMousePosition.X);
+                G.setfield("y",         me.dwMousePosition.Y);
+                G.setfield("button",    me.dwButtonState);
+                G.setfield("control",   me.dwControlKeyState);
+                G.setfield("flags",     me.dwEventFlags);
                 break;
             }
             case KEY_EVENT:
@@ -47,7 +47,7 @@ protected:
                 G.setfield("keycode",   ke.wVirtualKeyCode);
                 G.setfield("scancode",  ke.wVirtualScanCode);
                 G.setfield("char",      std::wstring(1, ke.uChar.UnicodeChar));
-                G.setfield("ctrl",      ke.dwControlKeyState);
+                G.setfield("control",   ke.dwControlKeyState);
                 break;
             }
             }
