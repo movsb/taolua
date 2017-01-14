@@ -186,11 +186,40 @@ public:
             return p;
         }
 
-    template<typename T, typename = decltype(&T::to_lua)>
-    void push(const T& v) { push(v.to_lua()); }
+    // SFINAE test
+    template <typename T>
+    class has_tolua
+    {
+        typedef char    one;
+        typedef wchar_t two;
 
-    template<typename T, typename = decltype(&T::to_table), typename = T>
-    void push(const T& v) { v.to_table(*this); }
+        template <typename C> static one test(decltype(&C::to_lua));
+        template <typename C> static two test(...);
+
+    public:
+        enum { value = sizeof(test<T>(0)) == sizeof(one) };
+    };
+    // SFINAE test
+    template <typename T>
+    class has_totable
+    {
+        typedef char    one;
+        typedef wchar_t two;
+
+        template <typename C> static one test(decltype(&C::to_table));
+        template <typename C> static two test(...);
+
+    public:
+        enum { value = sizeof(test<T>(0)) == sizeof(one) };
+    };
+
+    template<typename T>
+    typename std::enable_if<has_tolua<T>::value, void>::type
+        push(const T& v) { push(v.to_lua()); }
+
+    template<typename T>
+    typename std::enable_if<has_totable<T>::value, void>::type
+        push(const T& v) { v.to_table(*this); }
 
     template<typename T>
         void    push(const std::vector<T>& arr)
