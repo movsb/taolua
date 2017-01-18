@@ -5,7 +5,7 @@
 
 namespace taolua {
 
-#define MODULE(name)                lua.newlib(#name, taolua::name::__methods__, taolua::name::__init__)
+#define MODULE(name)                G->newlib(#name, taolua::name::__methods__, taolua::name::__init__)
 
 #define DECL_WRAP                   LuaWrapper G(L)
 #define DECL_MODULE_MAGIC(name)     void name(LuaWrapper G)
@@ -281,6 +281,7 @@ public:
 
     // misc
     int     argerr(int i, const char* msg)                  { return luaL_argerror(_L, i, msg); }
+    void    error()                                         { return (void)lua_error(_L); }
     int     next(int t)                                     { return lua_next(_L, t); }
     void    setfuncs(const luaL_Reg fns[], int nup = 0)     { return luaL_setfuncs(_L, fns, nup); }
 
@@ -308,8 +309,12 @@ public:
     void newlib(const char* name, const luaL_Reg fns[], void(*init)(LuaWrapper S));
 
     // load
+    bool load(TaoLua* __this, const std::wstring& lib);
     int exec(const std::wstring& file);
-    static int lua_exec(lua_State* L);
+
+    // LUAAPI
+    LUAAPI(lua_load);
+    LUAAPI(lua_exec);
 
 protected:
     void _init_global();

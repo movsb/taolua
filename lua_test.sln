@@ -3,7 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "taolua", "pro/taolua.vcxproj", "{9F911B44-D8BA-45B2-A52C-F0913CF82EE9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua_test", "pro\taolua.vcxproj", "{9F911B44-D8BA-45B2-A52C-F0913CF82EE9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C2A0B216-4240-454F-9D27-B614E7F93AE8} = {C2A0B216-4240-454F-9D27-B614E7F93AE8}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "demo", "lib\demo\demo.vcxproj", "{4A1553AA-02B7-4667-BFEC-88E5B830E628}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C2A0B216-4240-454F-9D27-B614E7F93AE8} = {C2A0B216-4240-454F-9D27-B614E7F93AE8}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "liblua", "pro\liblua.vcxproj", "{C2A0B216-4240-454F-9D27-B614E7F93AE8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3rd", "3rd", "{54E59867-5185-4DCA-82D0-AD37A2803ED3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{683A00EB-DBA2-4D5E-A0F9-232B9A8CC817}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +35,28 @@ Global
 		{9F911B44-D8BA-45B2-A52C-F0913CF82EE9}.Release|x64.Build.0 = Release|x64
 		{9F911B44-D8BA-45B2-A52C-F0913CF82EE9}.Release|x86.ActiveCfg = Release|Win32
 		{9F911B44-D8BA-45B2-A52C-F0913CF82EE9}.Release|x86.Build.0 = Release|Win32
+		{4A1553AA-02B7-4667-BFEC-88E5B830E628}.Debug|x64.ActiveCfg = Debug|x64
+		{4A1553AA-02B7-4667-BFEC-88E5B830E628}.Debug|x64.Build.0 = Debug|x64
+		{4A1553AA-02B7-4667-BFEC-88E5B830E628}.Debug|x86.ActiveCfg = Debug|Win32
+		{4A1553AA-02B7-4667-BFEC-88E5B830E628}.Debug|x86.Build.0 = Debug|Win32
+		{4A1553AA-02B7-4667-BFEC-88E5B830E628}.Release|x64.ActiveCfg = Release|x64
+		{4A1553AA-02B7-4667-BFEC-88E5B830E628}.Release|x64.Build.0 = Release|x64
+		{4A1553AA-02B7-4667-BFEC-88E5B830E628}.Release|x86.ActiveCfg = Release|Win32
+		{4A1553AA-02B7-4667-BFEC-88E5B830E628}.Release|x86.Build.0 = Release|Win32
+		{C2A0B216-4240-454F-9D27-B614E7F93AE8}.Debug|x64.ActiveCfg = Debug|x64
+		{C2A0B216-4240-454F-9D27-B614E7F93AE8}.Debug|x64.Build.0 = Debug|x64
+		{C2A0B216-4240-454F-9D27-B614E7F93AE8}.Debug|x86.ActiveCfg = Debug|Win32
+		{C2A0B216-4240-454F-9D27-B614E7F93AE8}.Debug|x86.Build.0 = Debug|Win32
+		{C2A0B216-4240-454F-9D27-B614E7F93AE8}.Release|x64.ActiveCfg = Release|x64
+		{C2A0B216-4240-454F-9D27-B614E7F93AE8}.Release|x64.Build.0 = Release|x64
+		{C2A0B216-4240-454F-9D27-B614E7F93AE8}.Release|x86.ActiveCfg = Release|Win32
+		{C2A0B216-4240-454F-9D27-B614E7F93AE8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4A1553AA-02B7-4667-BFEC-88E5B830E628} = {683A00EB-DBA2-4D5E-A0F9-232B9A8CC817}
+		{C2A0B216-4240-454F-9D27-B614E7F93AE8} = {54E59867-5185-4DCA-82D0-AD37A2803ED3}
 	EndGlobalSection
 EndGlobal

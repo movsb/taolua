@@ -14,6 +14,7 @@
 #include <functional>
 #include <codecvt>
 #include <memory>
+#include <regex>
 
 #include <tchar.h>
 #include <Windows.h>

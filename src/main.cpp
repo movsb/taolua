@@ -68,6 +68,8 @@ int wmain(int argc, wchar_t* argv[])
     TaoLua lua;
     lua.open();
 
+    auto G = &lua;
+
     MODULE(winapi);
 
     MODULE(file_system);

@@ -1,0 +1,16 @@
+Output Directory:           $(SolutionDir)bin\$(PlatformTarget)_$(Configuration)\
+Intermediate Directory:     $(SolutionDir)tmp\$(ProjectName)_$(PlatformTarget)_$(Configuration)\
+
+Includes:
+            $(SolutionDir)inc;$(SolutionDir)3rd;
+
+Macros:
+             _CRT_SECURE_NO_WARNINGS
+
+
+BOOL WINAPI DllMain(
+  [in]                 HINSTANCE hinstDLL,
+  [in]                 DWORD fdwReason,
+  [in]                 LPVOID lpvReserved
+);
+

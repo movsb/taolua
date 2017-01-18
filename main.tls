@@ -1,0 +1,7 @@
+taolua.load('demo')
+
+print(taolua.demo)
+
+print(taolua.demo.test())
+
+
