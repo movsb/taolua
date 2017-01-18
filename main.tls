@@ -1,7 +1,4 @@
-taolua.load('demo')
-
-print(taolua.demo)
-
-print(taolua.demo.test())
-
+taolua.load('console')
+local console = taolua.console
+print(console.this():title())
 

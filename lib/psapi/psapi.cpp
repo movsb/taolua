@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <taolua/taolua.h>
 #include "psapi.h"
 
 #include <TlHelp32.h>

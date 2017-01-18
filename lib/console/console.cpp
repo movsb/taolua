@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <taolua/taolua.h>
 #include "console.h"
 
 namespace taolua {

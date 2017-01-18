@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <taolua/taolua.h>
 #include "file_system.h"
 
 #include <shlwapi.h>

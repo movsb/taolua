@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <taolua/taolua.h>
 #include "windows_shell.h"
 
 #include <atlbase.h>

@@ -15,36 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\inc\taolua\lua.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\inc\taolua\stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\core\winapi.cpp">
+    <ClCompile Include="psapi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\inc\taolua\charset.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\inc\taolua\lua.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\inc\taolua\stdafx.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\inc\taolua\taolua.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\core\winapi.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\inc\taolua\winhlp.h">
+    <ClInclude Include="psapi.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

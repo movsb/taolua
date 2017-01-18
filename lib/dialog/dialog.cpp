@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <taolua/taolua.h>
 #include "dialog.h"
 
 // BEG_LIB_NAMESPACE(dialog)

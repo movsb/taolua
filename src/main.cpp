@@ -4,14 +4,6 @@
 
 #include "core/winapi.h"
 
-#include "lib/file_system.h"
-#include "lib/window_manage.h"
-#include "lib/psapi.h"
-#include "lib/dialog.h"
-#include "lib/windows_shell.h"
-#include "lib/console.h"
-#include "lib/network.h"
-
 #include <shlobj.h>
 
 using namespace taolua;
@@ -71,14 +63,6 @@ int wmain(int argc, wchar_t* argv[])
     auto G = &lua;
 
     MODULE(winapi);
-
-    MODULE(file_system);
-    MODULE(window_manage);
-    MODULE(psapi);
-    MODULE(dialog);
-    MODULE(windows_shell);
-    MODULE(console);
-    MODULE(network);
 
     lua.exec(argv[1]);
 

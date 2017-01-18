@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <taolua/taolua.h>
 #include "window_manage.h"
 
 // BEG_LIB_NAMESPACE(window_manage)
