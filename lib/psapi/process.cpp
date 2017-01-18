@@ -1,11 +1,11 @@
 #include <taolua/taolua.h>
-#include "psapi.h"
+#include "process.h"
 
 #include <TlHelp32.h>
 #include <psapi.h>
 
-// BEG_LIB_NAMESPACE(psapi)
-namespace taolua { namespace psapi {
+// BEG_LIB_NAMESPACE(process)
+namespace taolua { namespace process {
 
 static std::wstring _get_path(DWORD pid)
 {
@@ -13,9 +13,9 @@ static std::wstring _get_path(DWORD pid)
     AutoHandle handle = ::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
     if(handle) {
         wchar_t buf[MAX_PATH];
-        if(::GetModuleFileNameEx(handle, nullptr, buf, _countof(buf))) {
-            path = buf;
-        }
+        // if(::GetProcessImageFileName(handle, buf, _countof(buf))) {
+        //     path = buf;
+        // }
     }
     return std::move(path);
 }
@@ -28,7 +28,7 @@ public:
     ProcessObject(DWORD pid)
         : _pid(pid) { }
 
-    BEG_OBJ_API(psapi, ProcessObject)
+    BEG_OBJ_API(process, ProcessObject)
         OBJAPI(__tostring)
         OBJAPI(threads)
         OBJAPI(modules)

@@ -1,8 +1,8 @@
 #include <taolua/taolua.h>
-#include "psapi.h"
+#include "process.h"
 
 TAOLUAAPI_INIT()
 {
-    args->newlib("psapi", taolua::psapi::__methods__, taolua::psapi::__init__);
+    args->newlib("process", taolua::process::__methods__, taolua::process::__init__);
     return true;
 }

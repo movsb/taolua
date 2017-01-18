@@ -18,12 +18,12 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="psapi.cpp">
+    <ClCompile Include="process.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="psapi.h">
+    <ClInclude Include="process.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,3 @@
-taolua.load('console')
-local console = taolua.console
-print(console.this():title())
+taolua.load('process')
+print(taolua.process)
 
