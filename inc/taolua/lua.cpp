@@ -36,7 +36,7 @@ void TaoLua::newlib(const char* name, const luaL_Reg fns[], void(*init)(LuaWrapp
     pop();
 }
 
-bool TaoLua::load(TaoLua* __this , const std::wstring& lib)
+bool TaoLua::load(const std::wstring& lib)
 {
     // -1: invalid, 0: file, 1: folder
     auto get_file_type = [](const std::wstring& file) {
@@ -53,7 +53,7 @@ bool TaoLua::load(TaoLua* __this , const std::wstring& lib)
     };
 
     auto get_target = [&] {
-        static std::wstring paths[] = {
+        std::wstring paths[] = {
             get_root() + L'/' + lib + L".lua",
             get_root() + L'/' + lib + L".dll",
             get_root() + L'/' + lib + L"/main.lua",
@@ -82,23 +82,23 @@ bool TaoLua::load(TaoLua* __this , const std::wstring& lib)
     auto target = get_target();
     auto init_type = get_init_type(target);
     if(init_type == -1) {
-        __this->push_fmt(L"module init file not found for: %s", lib.c_str());
+        push_fmt(L"module init file not found for: %s", lib.c_str());
         return false;
     }
     else if(init_type == 0) {
-        return __this->exec(target) == LUA_OK;
+        return exec(target) == LUA_OK;
     }
     else if(init_type == 1) {
         HMODULE hMod = ::LoadLibrary(target.c_str());
         if(!hMod) {
-            __this->push_fmt(L"failed to LoadLibrary: %s(%d)", target.c_str(), ::GetLastError());
+            push_fmt(L"failed to LoadLibrary: %s(%d)", target.c_str(), ::GetLastError());
             return false;
         }
 
         using TaoLuaInit = bool (*)(TaoLuaInitParams* args);
         auto _init = (TaoLuaInit)::GetProcAddress(hMod, "taolua_init");
         if(!_init) {
-            __this->push_fmt(L"invalid module entry for: %s", target.c_str());
+            push_fmt(L"invalid module entry for: %s", target.c_str());
             ::FreeLibrary(hMod);
             return false;
         }
@@ -112,11 +112,11 @@ bool TaoLua::load(TaoLua* __this , const std::wstring& lib)
         args.newlib = la_newlib;
         __G = this;
         BoolVal br = _init(&args);
-        if(!br) __this->push_fmt(L"failed to call init func: %s", target.c_str());
+        if(!br) push_fmt(L"failed to call init func: %s", target.c_str());
         return br;
     }
 
-    __this->push(L"unknown error.");
+    push(L"unknown error.");
     return false;
 }
 
@@ -126,9 +126,9 @@ int TaoLua::lua_load(lua_State* L)
     G.getglobal("taolua");
     G.getfield("__this__");
     auto __this = G.check_udata<TaoLua*>(-1);
-    G.pop();
+    G.pop(2);
     auto lib = G.check_str(1);
-    auto r = __this->load(__this, lib);
+    auto r = __this->load(lib);
     if(!r) {
         G.error();
     }

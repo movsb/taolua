@@ -309,7 +309,7 @@ public:
     void newlib(const char* name, const luaL_Reg fns[], void(*init)(LuaWrapper S));
 
     // load
-    bool load(TaoLua* __this, const std::wstring& lib);
+    bool load(const std::wstring& lib);
     int exec(const std::wstring& file);
 
     // LUAAPI

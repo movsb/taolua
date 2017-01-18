@@ -1,3 +1,5 @@
 taolua.load('process')
+taolua.load('console')
 print(taolua.process)
+print(taolua.console)
 
