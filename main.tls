@@ -1,5 +1,7 @@
-taolua.load('process')
-taolua.load('console')
+taolua.load('process', 'console')
 print(taolua.process)
 print(taolua.console)
+
+pause()
+
 

@@ -127,11 +127,15 @@ int TaoLua::lua_load(lua_State* L)
     G.getfield("__this__");
     auto __this = G.check_udata<TaoLua*>(-1);
     G.pop(2);
-    auto lib = G.check_str(1);
-    auto r = __this->load(lib);
-    if(!r) {
-        G.error();
+
+    for(int i = 1, n = G.gettop(); i <= n; i++) {
+        auto lib = G.check_str(i);
+        auto r = __this->load(lib);
+        if(!r) {
+            G.error();
+        }
     }
+
     return 0;
 }
 
@@ -191,6 +195,14 @@ void TaoLua::_init_global()
 
     push(sleep);
     setglobal("sleep");
+
+    auto pause = [](lua_State* L) -> int {
+        system("pause");
+        return 0;
+    };
+
+    push(pause);
+    setglobal("pause");
 }
 
 }
