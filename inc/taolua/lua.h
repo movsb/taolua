@@ -318,6 +318,9 @@ public:
 
 protected:
     void _init_global();
+
+protected:
+    std::set<std::wstring> _loaded;
 };
 
 }

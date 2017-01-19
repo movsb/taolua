@@ -130,9 +130,15 @@ int TaoLua::lua_load(lua_State* L)
 
     for(int i = 1, n = G.gettop(); i <= n; i++) {
         auto lib = G.check_str(i);
-        auto r = __this->load(lib);
-        if(!r) {
-            G.error();
+        auto lwr_lib = lib;
+        std::transform(lwr_lib.begin(), lwr_lib.end(), lwr_lib.begin(), ::tolower);
+        if(!__this->_loaded.count(lwr_lib)) {
+            if(__this->load(lib)) {
+                __this->_loaded.emplace(lwr_lib);
+            }
+            else {
+                G.error();
+            }
         }
     }
 
