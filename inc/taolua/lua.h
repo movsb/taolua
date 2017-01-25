@@ -110,10 +110,11 @@ public:
     lua_CFunction   tocfunc(int i)                          { return lua_tocfunction(_L, i); }
     void*           touserdata(int i)                       { return lua_touserdata(_L, i); }
 
+    void            check_any(int i)                        { luaL_checkany(_L, i); }
     std::string     check_str_raw(int i)                    { const char* s; size_t n; s = luaL_checklstring(_L, i, &n); return {s,n}; }
     std::wstring    check_str(int i)                        { return from_utf8(check_str_raw(i)); }
-    MyStrRaw       opt_str_raw(int i, const char* def="")  { const char* s; size_t n; s = luaL_optlstring(_L, i, def, &n); return {s, n, s != def, def}; }
-    MyStr          opt_str(int i, const wchar_t* def=L"")  { auto raw = opt_str_raw(i, def ? to_utf8(def).c_str() : nullptr); return { from_utf8(raw), raw, def};}
+    MyStrRaw        opt_str_raw(int i, const char* def="")  { const char* s; size_t n; s = luaL_optlstring(_L, i, def, &n); return {s, n, s != def, def}; }
+    MyStr           opt_str(int i, const wchar_t* def=L"")  { auto raw = opt_str_raw(i, def ? to_utf8(def).c_str() : nullptr); return { from_utf8(raw), raw, def};}
 
     lua_Number      check_number(int i)                     { return luaL_checknumber(_L, i); }
     lua_Number      opt_number(int i, lua_Number def)       { return luaL_optnumber(_L, i, def); }

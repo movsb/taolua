@@ -1,7 +1,71 @@
-taolua.load('process', 'console')
-print(taolua.process)
-print(taolua.console)
+taolua.load('json')
 
-pause()
+local tests = {
+    {
+        json = '',
+        func = function() end,
+    },
+    {
+        json = 'null',
+        func = function(v)
+                print(v)
+            end,
+    },
+    {
+        json = '123',
+        func = function(v)
+                print(v)
+            end,
+    },
+    {
+        json = '123.456',
+        func = function(v)
+                print(v)
+            end,
+    },
+    {
+        json = 'true',
+        func = function(v)
+                print(v)
+            end,
+    },
+    {
+        json = '"string value"',
+        func = function(v)
+                print(v)
+            end,
+    },
+    {
+        json = '[11,22,33]',
+        func = function(v)
+                for k, a in ipairs(v) do
+                    print(k, a)
+                end
+            end,
+    },
+    {
+        json = '{"a": 1, "b": "bstr", "c": true, "d": 3.14, "e": [111,222,333], "f": {"a":"A","b":"B"}}',
+        func = function(v)
+                print(v.a)
+                print(v.b)
+                print(v.c)
+                print(v.d)
+                for k, a in ipairs(v.e) do
+                    print(k, a)
+                end
+                for k, a in pairs(v.f) do
+                    print(k, a)
+                end
+            end,
+    },
+}
 
-
+for _, t in ipairs(tests) do
+    local r, v = taolua.json.decode(t.json)
+    if r then
+        t.func(v)
+    else
+        print(v)
+    end
+end
+        
