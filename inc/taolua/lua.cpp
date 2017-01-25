@@ -161,7 +161,12 @@ int TaoLua::exec(const std::wstring& file)
     f.read(buf.get(), size);
     buf.get()[size] = '\0';
 
-    int r = luaL_dostring(_L, buf.get());
+    return eval(buf.get());
+}
+
+int TaoLua::eval(const char* s)
+{
+    int r = luaL_dostring(_L, s);
     if(r != LUA_OK) {
         auto err = to_utf8(check_str(-1));
         printf("error executing lua: %s\n", err.c_str());

@@ -46,8 +46,6 @@ static void assoc(bool yes)
 
 int wmain(int argc, wchar_t* argv[])
 {
-    if(argc != 2) return 0;
-
     if(argc == 2 && wcscmp(argv[1], L"--assoc") == 0) {
         assoc(true);
         return 0;
@@ -64,7 +62,17 @@ int wmain(int argc, wchar_t* argv[])
 
     MODULE(winapi);
 
-    lua.exec(argv[1]);
+    if(argc == 2) {
+        lua.exec(argv[1]);
+    }
+    else {
+        printf("%s", "taolua v0.1\n");
+
+        std::string s;
+        while(printf(">> ") && std::getline(std::cin, s)) {
+            lua.eval(s.c_str());
+        }
+    }
 
     lua.close();
 

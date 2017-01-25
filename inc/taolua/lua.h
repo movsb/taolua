@@ -312,6 +312,7 @@ public:
     // load
     bool load(const std::wstring& lib);
     int exec(const std::wstring& file);
+    int eval(const char* s);
 
     // LUAAPI
     LUAAPI(lua_load);
